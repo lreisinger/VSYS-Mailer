@@ -142,3 +142,42 @@ int listMail(int conSocket) {
     }
     return 0;
 }
+
+int readMail(int conSocket) {
+    char buffer[1024], user[9], number[4];
+
+    printf("Username: ");
+    fgets(user, 9, stdin);
+    getc(stdin);
+
+    printf("Message-number: ");
+    fgets(number, strlen(number), stdin);
+
+    strcpy(buffer, "READ\n");
+    strcat(buffer, user);
+    strcat(buffer, "\n");
+    strcat(buffer, number);
+    strcat(buffer, "\n");
+
+    send(conSocket, buffer, strlen (buffer), 0);
+
+    recv(conSocket,buffer,BUF-1, 0);
+
+    char* tmp=strtok(buffer, "\n");
+    if (strcasecmp(tmp,"ok")!=0) {
+        printf("Error\n");
+    }
+    else {
+        tmp=strtok(NULL, "\n");
+        printf("From: %s\n",tmp);
+        tmp=strtok(NULL, "\n");
+        printf("To: %s\n",tmp);
+        tmp=strtok(NULL, "\n");
+        printf("Subject: %s\n",tmp);
+        tmp=strtok(NULL, "\0");
+        printf("Message: %s\n", tmp);
+    }
+
+    return 0;
+
+}
