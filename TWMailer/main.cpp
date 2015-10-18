@@ -18,8 +18,24 @@
 
 using namespace std;
 
+struct command {
+    //SEND
+    char cmd[5];
+    char sender[9];
+    char empfaenger[9];
+    char betreff[81];
+    char message[918];
+    //LIST
+    char username[8];
+    //READ/DEL
+    //username
+    int msgNr;
+    bool valid;
+} ;
+
 ssize_t sendmsg(int sd, char* text);
-void parseReceived(char* msg);
+command parseReceived(char* msg);
+int handleCommand(command* cmd);
 
 int main(int argc, const char * argv[]) {
     int queue = 1;//max 1 in queue
@@ -83,7 +99,7 @@ int main(int argc, const char * argv[]) {
             else
             {
                 cout << "RAW: " << endl << buffer << endl;
-                parseReceived(buffer);
+                command recv_cmd = parseReceived(buffer);
             }
 
         }
@@ -93,7 +109,11 @@ int main(int argc, const char * argv[]) {
     return 0;
 }
 
-void parseReceived(char* msg){
+command parseReceived(char* msg){
+    command new_cmd = {};
+    new_cmd.valid = true;
+    
+    /*
     char cmd[5];
     char sender[9];
     char empfaenger[9];
@@ -106,7 +126,7 @@ void parseReceived(char* msg){
     memset(&empfaenger, '\0', sizeof(empfaenger));
     memset(&betreff, '\0', sizeof(betreff));
     memset(&message, '\0', sizeof(message));
-    
+    */
     
     
 
@@ -120,26 +140,28 @@ void parseReceived(char* msg){
     while (tmp != NULL && !finished)
     {
         cout << tmp << endl;
+        
+        
         switch (i) {
             case 0:
                 //cmd
-                strcpy(cmd, tmp);
+                strcpy(new_cmd.cmd, tmp);
                 break;
             case 1:
                 //sender
-                strcpy(sender, tmp);
+                strcpy(new_cmd.sender, tmp);
                 break;
             case 2:
                 //empfänger
-                strcpy(empfaenger, tmp);
+                strcpy(new_cmd.empfaenger, tmp);
                 break;
             case 3:
                 //empfänger
-                strcpy(betreff, tmp);
+                strcpy(new_cmd.betreff, tmp);
                 break;
             case 4:
                 //Nachricht bis Zeile mit (nur) .
-                strcpy(message, tmp);
+                strcpy(new_cmd.message, tmp);
                 break;
             default:
                 if(strcmp(tmp, ".") == 0){
@@ -148,8 +170,8 @@ void parseReceived(char* msg){
                     break;
                 }
                 //Nachricht (Zeile 2+)
-                strcat(message, "\n");
-                strcat(message, tmp);
+                strcat(new_cmd.message, "\n");
+                strcat(new_cmd.message, tmp);
                 break;
                 
         }
@@ -157,7 +179,28 @@ void parseReceived(char* msg){
         
         tmp = strtok (NULL, "\n");
     }
-    
+    return new_cmd;
+}
+
+
+int handleCommand(command* cmd){
+    if(strcasecmp(cmd->cmd, "SEND") == 0){
+        
+    }
+    else if(strcasecmp(cmd->cmd, "LIST") == 0){
+        
+    }
+    else if(strcasecmp(cmd->cmd, "READ") == 0){
+        
+    }
+    else if(strcasecmp(cmd->cmd, "DEL") == 0){
+        
+    }
+    else
+    {
+        return -1; //wrong cmd
+    }
+    return 1;
 }
 
 
