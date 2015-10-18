@@ -37,6 +37,11 @@ ssize_t sendmsg(int sd, char* text);
 command parseReceived(char* msg);
 int handleCommand(command* cmd);
 
+int handleSend(command* cmd);
+int handleList(command* cmd);
+int handleRead(command* cmd);
+int handleDel(command* cmd);
+
 int main(int argc, const char * argv[]) {
     int queue = 1;//max 1 in queue
     int socket_fd;
@@ -74,7 +79,7 @@ int main(int argc, const char * argv[]) {
         {
             cout << "Client: " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << endl;
             
-            strcpy(buffer, "Welcome Client!");//welcome nachricht
+            strcpy(buffer, "Welcome Client!\n");//welcome nachricht
             send(conn_fd, buffer, strlen(buffer),0);
             memset(&buffer, '\0', sizeof(buffer));
             
@@ -185,23 +190,50 @@ command parseReceived(char* msg){
 
 int handleCommand(command* cmd){
     if(strcasecmp(cmd->cmd, "SEND") == 0){
-        
+        return handleSend(cmd);
     }
     else if(strcasecmp(cmd->cmd, "LIST") == 0){
-        
+        return handleList(cmd);
     }
     else if(strcasecmp(cmd->cmd, "READ") == 0){
-        
+        return handleRead(cmd);
     }
     else if(strcasecmp(cmd->cmd, "DEL") == 0){
-        
+        return handleDel(cmd);
     }
     else
     {
         return -1; //wrong cmd
     }
+}
+
+
+
+int handleSend(command* cmd){
+    
     return 1;
 }
+
+int handleList(command* cmd){
+    
+    return 1;
+}
+
+int handleRead(command* cmd){
+    
+    return 1;
+}
+
+int handleDel(command* cmd){
+    
+    return 1;
+}
+
+
+
+
+
+
 
 
 
