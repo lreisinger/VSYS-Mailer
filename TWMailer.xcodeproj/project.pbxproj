@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		806D342A1BD45B6A009745CC /* fileOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 806D34281BD45B6A009745CC /* fileOperations.cpp */; };
 		80D503AA1BC6DDC400E7E5D8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80D503A91BC6DDC400E7E5D8 /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +24,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		806D34281BD45B6A009745CC /* fileOperations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fileOperations.cpp; sourceTree = "<group>"; };
+		806D34291BD45B6A009745CC /* fileOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileOperations.h; sourceTree = "<group>"; };
 		80D503A61BC6DDC400E7E5D8 /* TWMailer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TWMailer; sourceTree = BUILT_PRODUCTS_DIR; };
 		80D503A91BC6DDC400E7E5D8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -58,6 +61,8 @@
 			isa = PBXGroup;
 			children = (
 				80D503A91BC6DDC400E7E5D8 /* main.cpp */,
+				806D34281BD45B6A009745CC /* fileOperations.cpp */,
+				806D34291BD45B6A009745CC /* fileOperations.h */,
 			);
 			path = TWMailer;
 			sourceTree = "<group>";
@@ -119,6 +124,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				80D503AA1BC6DDC400E7E5D8 /* main.cpp in Sources */,
+				806D342A1BD45B6A009745CC /* fileOperations.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

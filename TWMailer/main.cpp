@@ -13,14 +13,22 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
+
+
+#include <iostream>
+#include <fstream>
+
+#include "fileOperations.h"
+
 #define PORT 6001
 #define BUF 1024
 
 using namespace std;
 
+
 struct command {
-    //SEND
     char cmd[5];
+    //SEND
     char sender[9];
     char empfaenger[9];
     char betreff[81];
@@ -105,6 +113,7 @@ int main(int argc, const char * argv[]) {
             {
                 cout << "RAW: " << endl << buffer << endl;
                 command recv_cmd = parseReceived(buffer);
+                handleCommand(&recv_cmd);
             }
 
         }
@@ -118,71 +127,63 @@ command parseReceived(char* msg){
     command new_cmd = {};
     new_cmd.valid = true;
     
-    /*
-    char cmd[5];
-    char sender[9];
-    char empfaenger[9];
-    char betreff[81];
-    char message[918];
-    
-    
-    memset(&cmd, '\0', sizeof(cmd));
-    memset(&sender, '\0', sizeof(sender));
-    memset(&empfaenger, '\0', sizeof(empfaenger));
-    memset(&betreff, '\0', sizeof(betreff));
-    memset(&message, '\0', sizeof(message));
-    */
-    
-    
+    char fields[4][900];//fields except cmd (SEND, LIST,..)
+    memset(&fields, 0, sizeof(char)*900*4);
 
     
     int i = 0;
     cout << endl << "HANDLE:" << endl;
     
-    char* tmp = strtok (msg,"\n");
-    bool finished = false;
     
-    while (tmp != NULL && !finished)
+    bool finished = false;
+    char* tmp = strtok (msg,"\n");
+    strcpy(new_cmd.cmd, tmp);
+    
+    
+    tmp = strtok (NULL, "\n");
+    while (tmp != NULL || !finished)
     {
         cout << tmp << endl;
         
-        
-        switch (i) {
-            case 0:
-                //cmd
-                strcpy(new_cmd.cmd, tmp);
-                break;
-            case 1:
-                //sender
-                strcpy(new_cmd.sender, tmp);
-                break;
-            case 2:
-                //empfänger
-                strcpy(new_cmd.empfaenger, tmp);
-                break;
-            case 3:
-                //empfänger
-                strcpy(new_cmd.betreff, tmp);
-                break;
-            case 4:
-                //Nachricht bis Zeile mit (nur) .
-                strcpy(new_cmd.message, tmp);
-                break;
-            default:
+        if(strcasecmp(new_cmd.cmd, "SEND") == 0){//sonderfall Message bei SEND
+
+            if(i > 3)//message-block
+            {
                 if(strcmp(tmp, ".") == 0){
-                    cout << "EOM" << endl;
                     finished = true;
-                    break;
                 }
-                //Nachricht (Zeile 2+)
-                strcat(new_cmd.message, "\n");
-                strcat(new_cmd.message, tmp);
-                break;
-                
+                else
+                {
+                    strcat(fields[3], "\n");
+                    strcat(fields[3], tmp);
+                }
+            }
+            else
+            {
+                strcpy(fields[i], tmp);//jedes feld von SEND
+            }
         }
-        i++;
+        else
+        {
+            strcpy(fields[i], tmp);//jedes Feld von andere als SEND
+        }
         
+        i++;
         tmp = strtok (NULL, "\n");
+    }
+    
+    if(strcasecmp(new_cmd.cmd, "SEND") == 0){
+        strcpy(new_cmd.sender, fields[0]);
+        strcpy(new_cmd.empfaenger, fields[1]);
+        strcpy(new_cmd.betreff, fields[2]);
+        strcpy(new_cmd.message, fields[3]);
+    }
+    else if(strcasecmp(new_cmd.cmd, "LIST") == 0){
+        strcpy(new_cmd.username, fields[0]);
+    }
+    else if((strcasecmp(new_cmd.cmd, "READ") == 0) || (strcasecmp(new_cmd.cmd, "DEL") == 0)){
+        strcpy(new_cmd.username, fields[0]);
+        new_cmd.msgNr = stoi(fields[1]);
     }
     return new_cmd;
 }
