@@ -2,8 +2,8 @@
 //  main.cpp
 //  TWMailer
 //
-//  Created by Lukas Reisinger on 08.10.15.
-//  Copyright (c) 2015 Lukas Reisinger. All rights reserved.
+//  Created by Lukas Reisinger and Dominik Hofmann.
+//  Copyright (c) 2015 Lukas Reisinger and Dominik Hofmann. All rights reserved.
 //
 
 #include <iostream>
