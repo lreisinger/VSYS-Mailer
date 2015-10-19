@@ -58,6 +58,12 @@ int sendReplySuccess(bool success, int sd);
 int sendReplyText(char* text, int sd);
 
 int main(int argc, const char * argv[]) {
+
+    if( argc < 2 ){
+        printf("Usage: %s Port\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
     int queue = 1;//max 1 in queue
     int socket_fd;
     int conn_fd;
@@ -70,7 +76,7 @@ int main(int argc, const char * argv[]) {
     memset(&my_addr, 0, sizeof(my_addr));
 
     my_addr.sin_family = AF_INET;
-    my_addr.sin_port = htons(PORT);
+    my_addr.sin_port = htons(atoi(argv[1]));
     my_addr.sin_addr.s_addr = htons(INADDR_ANY);
 
     if( ::bind(socket_fd, (struct sockaddr *) &my_addr, sizeof(my_addr)) == -1){
@@ -85,7 +91,7 @@ int main(int argc, const char * argv[]) {
     }
 
     socklen_t client_addrlen = sizeof(client_addr);
-    
+
     while (true) {
         cout << "Waiting for Connection..." << endl;
         conn_fd = accept (socket_fd, (sockaddr *) &client_addr, &client_addrlen);
@@ -93,11 +99,11 @@ int main(int argc, const char * argv[]) {
         if (conn_fd > 0)
         {
             cout << "Client: " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << endl;
-            
+
             strcpy(buffer, "Welcome Client!\n");//welcome nachricht
             send(conn_fd, buffer, strlen(buffer),0);
             memset(&buffer, '\0', sizeof(buffer));
-            
+
         }
 
 
@@ -133,25 +139,25 @@ int main(int argc, const char * argv[]) {
 command parseReceived(char* msg){
     command new_cmd = {};
     new_cmd.valid = true;
-    
+
     char fields[4][900];//fields except cmd (SEND, LIST,..)
     memset(&fields, 0, sizeof(char)*900*4);
 
-    
+
     int i = 0;
     cout << endl << "HANDLE:" << endl;
-    
-    
+
+
     bool finished = false;
     char* tmp = strtok (msg,"\n");
     strcpy(new_cmd.cmd, tmp);
-    
-    
+
+
     tmp = strtok (NULL, "\n");
     while (tmp != NULL && !finished)
     {
         cout << tmp << endl;
-        
+
         if(strcasecmp(new_cmd.cmd, "SEND") == 0){//sonderfall Message bei SEND
 
             if(i > 3)//message-block
@@ -174,11 +180,11 @@ command parseReceived(char* msg){
         {
             strcpy(fields[i], tmp);//jedes Feld von andere als SEND
         }
-        
+
         i++;
         tmp = strtok (NULL, "\n");
     }
-    
+
     if(strcasecmp(new_cmd.cmd, "SEND") == 0){
         if(i>3){//mind. 4zeilen
             strcpy(new_cmd.sender, fields[0]);
@@ -253,19 +259,19 @@ bool handleList(command* cmd, int sd){
     memset(subj_count, '\0', sizeof(char)*4);
     char reply[BUF];
     memset(reply, '\0', sizeof(char)*BUF);
-    
+
     listMessages(cmd->username, &subjects);
     sprintf(subj_count,"%d",(int)subjects.size());
     strcpy(reply, subj_count);//#\n
     strcat(reply, "\n");
-    
+
     for (vector<char*>::iterator it = subjects.begin(); it != subjects.end(); ++it)
     {
         strcat(reply, *it);//subject\n
         strcat(reply, "\n");
     }
     sendReplyText(reply, sd);
-    
+
     return true;
 }
 
@@ -274,9 +280,9 @@ bool handleRead(command* cmd, int sd){
     memset(reply, '\0', sizeof(char)*BUF);
     char msg[BUF];
     memset(msg, '\0', sizeof(char)*BUF);
-    
+
     bool success = getMailMessage(cmd->username, cmd->msgNr, msg);
-    
+
     if(success)
     {
         strcpy(reply, "OK\n");
@@ -292,9 +298,9 @@ bool handleRead(command* cmd, int sd){
 }
 
 bool handleDel(command* cmd, int sd){
-    
+
     bool success = deleteMail(cmd->username, cmd->msgNr);
-    
+
     sendReplySuccess(success, sd);
     return true;
 }
@@ -309,15 +315,15 @@ int sendReplySuccess(bool success, int sd){
         strcpy(buffer, "ERR\n");
     }
     cout << "Sent " << buffer << endl;
-    
+
     return (int)send(sd, buffer, strlen (buffer), 0);
 }
 
 int sendReplyText(char* text, int sd){
     char buffer[BUF];
-    
+
     strcpy(buffer, text);
     cout << "Sent " << buffer << endl;
-    
+
     return (int)send(sd, buffer, strlen (buffer), 0);
 }
