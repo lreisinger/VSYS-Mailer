@@ -1,3 +1,11 @@
+//
+//  client.cpp
+//  TWMailer
+//
+//  Created by Lukas Reisinger and Dominik Hofmann.
+//  Copyright (c) 2015 Lukas Reisinger and Dominik Hofmann. All rights reserved.
+//
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -12,6 +20,7 @@ int handleInput(char* input);
 int sendMail(int conSocket);
 int listMail(int conSocket);
 int readMail(int conSocket);
+int delMail(int conSocket);
 
 int main (int argc, char **argv) {
     int create_socket;
@@ -50,14 +59,13 @@ int main (int argc, char **argv) {
     do {
         printf ("Send message: ");
         fgets (buffer, BUF, stdin);
-        printf("%d\n",handleInput(buffer));
         switch (handleInput(buffer)) {
             case -1: printf("Quitting Client...\n");break;
             case 1: sendMail(create_socket); break;
             case 2: listMail(create_socket); break;
-            case 3: break; //READ
-            case 4: break; //DEL
-            default: printf("Unknown Command");
+            case 3: readMail(create_socket); break;
+            case 4: delMail(create_socket); break;
+            default: printf("Unknown Command\n");
         }
     }
     while (strcasecmp(buffer, "quit\n") != 0);
@@ -81,15 +89,21 @@ int handleInput(char* input) {
 }
 
 int sendMail(int conSocket) {
-    char from[9], to[9], subject[81], message[901], msgBuffer[901];
+    char from[9], to[9], subject[81], message[901], msgBuffer[901], tmp[50];
 
     printf("From: ");
     fgets(from, 9, stdin);
-    getc(stdin);
+    //printf("%d\n",strlen(from));
+    if (strlen(from)>=8) {
+        fgets(tmp, 50, stdin);
+    }
 
     printf("To: ");
     fgets(to, 9, stdin);
-    getc(stdin);
+    //printf("%d\n",strlen(to));
+    if (strlen(to)>=8) {
+        fgets(tmp, 50, stdin);
+    }
 
     printf("Subject: ");
     fgets(subject, 81, stdin);
@@ -130,8 +144,17 @@ int sendMail(int conSocket) {
 }
 
 int listMail(int conSocket) {
-    char buffer[1024];
+    char buffer[1024], user[9], tmp[50];
+
+    printf("Username: ");
+    fgets(user, 9, stdin);
+    if (strlen(user)>=8) {
+        fgets(tmp, 50, stdin);
+    }
+
     strcpy(buffer, "LIST\n");
+    strcat(buffer, user);
+    strcat(buffer, "\n");
     send(conSocket, buffer, strlen (buffer), 0);
 
     int size;
@@ -144,11 +167,13 @@ int listMail(int conSocket) {
 }
 
 int readMail(int conSocket) {
-    char buffer[1024], user[9], number[4];
+    char buffer[1024], user[9], number[4], temp[50];
 
     printf("Username: ");
     fgets(user, 9, stdin);
-    getc(stdin);
+    if (strlen(user)>=8) {
+        fgets(temp, 50, stdin);
+    }
 
     printf("Message-number: ");
     fgets(number, strlen(number), stdin);
@@ -183,11 +208,13 @@ int readMail(int conSocket) {
 }
 
 int delMail(int conSocket) {
-    char buffer[1024], user[9], number[4];
+    char buffer[1024], user[9], number[4], tmp[50];
 
     printf("Username: ");
     fgets(user, 9, stdin);
-    getc(stdin);
+    if (strlen(user)>=8) {
+        fgets(tmp, 50, stdin);
+    }
 
     printf("Message-number: ");
     fgets(number, strlen(number), stdin);
