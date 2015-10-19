@@ -8,7 +8,7 @@ main.o: main.cpp fileOperations.h
 	g++ -Wall -g -std=c++11 -c main.cpp -o main.o
 
 fileOperations.o: fileOperations.cpp fileOperations.h
-	g++ -Wall -g -std=c++11 -c fileOperations.cpp -o fileOperaions.h
+	g++ -Wall -g -std=c++11 -c fileOperations.cpp -o fileOperations.o
 
 
 client: client.o

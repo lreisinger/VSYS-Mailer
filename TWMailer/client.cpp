@@ -131,7 +131,11 @@ int sendMail(int conSocket) {
 
     send(conSocket, buffer, strlen (buffer), 0);
 
+    memset(&buffer, '\0', strlen(buffer));
+
     recv(conSocket,buffer,BUF-1, 0);
+
+    printf("Recieved: %s",buffer);
 
     if (strcasecmp(buffer,"OK\n")==0) {
         printf("Your message was sent!\n");
@@ -144,12 +148,12 @@ int sendMail(int conSocket) {
 }
 
 int listMail(int conSocket) {
-    char buffer[1024], user[9], tmp[50];
+    char buffer[1024], user[9], temp[50];
 
     printf("Username: ");
     fgets(user, 9, stdin);
     if (strlen(user)>=8) {
-        fgets(tmp, 50, stdin);
+        fgets(temp, 50, stdin);
     }
 
     strcpy(buffer, "LIST\n");
@@ -157,12 +161,20 @@ int listMail(int conSocket) {
     strcat(buffer, "\n");
     send(conSocket, buffer, strlen (buffer), 0);
 
-    int size;
-    size=recv(conSocket,buffer,BUF-1, 0);
-    if (size>0) {
-        buffer[size]= '\0';
-        printf("%s",buffer);
+    memset(&buffer, '\0', strlen(buffer));
+
+    recv(conSocket,buffer,BUF-1, 0);
+
+    char* tmp=strtok(buffer,"\n");
+    int anz=strtol(tmp,NULL,10);
+    printf("Anzahl der Nachrichten: %d\n", anz);
+
+    for (int i=0; i<anz; i++) {
+        memset(&tmp, '\0', strlen(tmp));
+        tmp=strtok(NULL,"\n");
+        printf("%d: %s\n",i,tmp);
     }
+
     return 0;
 }
 
@@ -185,6 +197,8 @@ int readMail(int conSocket) {
     strcat(buffer, "\n");
 
     send(conSocket, buffer, strlen (buffer), 0);
+
+    memset(&buffer, '\0', strlen(buffer));
 
     recv(conSocket,buffer,BUF-1, 0);
 
@@ -226,6 +240,8 @@ int delMail(int conSocket) {
     strcat(buffer, "\n");
 
     send(conSocket, buffer, strlen (buffer), 0);
+
+    memset(&buffer, '\0', strlen(buffer));
 
     recv(conSocket,buffer,BUF-1, 0);
 
