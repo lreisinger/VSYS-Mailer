@@ -12,6 +12,7 @@
 int handleInput(char* input);
 int sendMail(int conSocket);
 int listMail(int conSocket);
+int readMail(int conSocket);
 
 int main (int argc, char **argv) {
     int create_socket;
@@ -166,6 +167,7 @@ int readMail(int conSocket) {
     char* tmp=strtok(buffer, "\n");
     if (strcasecmp(tmp,"ok")!=0) {
         printf("Error\n");
+        return 1;
     }
     else {
         tmp=strtok(NULL, "\n");
@@ -179,5 +181,35 @@ int readMail(int conSocket) {
     }
 
     return 0;
+}
+
+int delMail(int conSocket) {
+    char buffer[1024], user[9], number[4];
+
+    printf("Username: ");
+    fgets(user, 9, stdin);
+    getc(stdin);
+
+    printf("Message-number: ");
+    fgets(number, strlen(number), stdin);
+
+    strcpy(buffer, "DEL\n");
+    strcat(buffer, user);
+    strcat(buffer, "\n");
+    strcat(buffer, number);
+    strcat(buffer, "\n");
+
+    send(conSocket, buffer, strlen (buffer), 0);
+
+    recv(conSocket,buffer,BUF-1, 0);
+
+    if (strcasecmp(buffer, "OK\n")) {
+        printf("Message deleted successfully!\n");
+        return 0;
+    }
+    else {
+        printf("Message could not be deleted!\n");
+        return 1;
+    }
 
 }
