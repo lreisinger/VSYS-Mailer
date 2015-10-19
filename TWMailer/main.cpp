@@ -292,12 +292,10 @@ bool handleRead(command* cmd, int sd){
 }
 
 bool handleDel(command* cmd, int sd){
-    /*
-    bool success = getMailMessage(cmd->username, cmd->msgNr, msg);
+    
+    bool success = deleteMail(cmd->username, cmd->msgNr);
     
     sendReplySuccess(success, sd);
-    //return success;
-     */
     return true;
 }
 

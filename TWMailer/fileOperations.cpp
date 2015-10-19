@@ -121,12 +121,15 @@ bool getMailMessage(char* username, int fileNr, char* msg_out)
 
     int i = 0;
     while(fgets(line,80, fp)!=NULL){
-        if(i == 2)
+        if(i == 0)
         {
             strcpy(msg_out, strtok (line,"\n"));// \n wegsplitten
             strcat(msg_out, "\n");
+            
+            strcat(msg_out, username);// \n wegsplitten
+            strcat(msg_out, "\n");
         }
-        else if (i > 2)
+        else if (i > 0)
         {
             strcat(msg_out, strtok (line,"\n"));// \n wegsplitten
             strcat(msg_out, "\n");
@@ -145,8 +148,10 @@ bool deleteMail(char* username, int fileNr)
     
     char basepath[30];   //data/username/mail
     char path[30];   // data/username/mail12
-    getUserpath(username, path);
-    strcat(path, "mail");
+    getUserpath(username, basepath);
+    strcat(basepath, "mail");
+    
+    strcpy(path, basepath);
     
     sprintf(mailNr,"%d",fileNr);
     strcat(path, mailNr);
@@ -156,17 +161,40 @@ bool deleteMail(char* username, int fileNr)
         return false;
     }
     
-    /*
+    cout << "Deleted " << path << endl;
+    int nr = fileNr+1;
     
-    char oldname[] = "images//test_1.jpg";
-    char newname[] = "images//test//test_2.jpg";
-    check = rename(oldname, newname);
-    if (check == 0)
-        puts("Success");
-    else
-        perror("Failed");
-     */
-    return 0;
+    while(true){//auf isfilepresent ändern!!!
+        
+        char tmp_filename[30];
+        char tmp_Nr[4];
+        memset(mailNr, '\0', sizeof(char)*4);
+        
+        char tmp_filename2[30];
+        char tmp_Nr2[4];
+        memset(mailNr, '\0', sizeof(char)*4);
+        
+        strcpy(tmp_filename, basepath);//data/User/mail  //alter name
+        sprintf(tmp_Nr,"%d",nr);
+        strcat(tmp_filename, tmp_Nr);//data/User/mail12
+        
+        
+        strcpy(tmp_filename2, basepath);//data/User/mail  //neuer name
+        sprintf(tmp_Nr2,"%d",nr-1);
+        strcat(tmp_filename2, tmp_Nr2);//data/User/mail12
+        
+        int check = rename(tmp_filename, tmp_filename2);
+        if (check == 0)
+        {
+            cout << "Renamed " << tmp_filename << " to " << tmp_filename2 << endl;
+        }
+        else
+        {
+            break;
+        }
+        
+    }
+    return true;
 }
 
 
@@ -190,6 +218,7 @@ bool isDirectoryPresent(char* dir){
     cout << "dir is present; path=" << dir << endl;
     return true;
 }
+
 
 void getNextFileNamePath(const char* path, char* filenamepath)
 {
