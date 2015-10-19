@@ -88,6 +88,7 @@ bool getMailSubject(char* path, char* subject_out){
         if(i == 1)
         {
             strcpy(subject_out, strtok (line,"\n"));// \n wegsplitten
+            cout << "dev subj: " << subject_out << endl << "dev line" << line << endl;
             break;
         }
         i++;
