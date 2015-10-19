@@ -120,9 +120,9 @@ int sendMail(int conSocket) {
 
     char buffer[BUF];
     strcat(buffer, "SEND\n");
-    strcat(buffer, from);
+    strcat(buffer, strtok(from,"\n"));
     strcat(buffer, "\n");
-    strcat(buffer, to);
+    strcat(buffer, strtok(to,"\n"));
     strcat(buffer, "\n");
     strcat(buffer, subject);
     //strcat(buffer, "\n");
@@ -153,7 +153,7 @@ int listMail(int conSocket) {
     }
 
     strcpy(buffer, "LIST\n");
-    strcat(buffer, user);
+    strcat(buffer, strtok(user,"\n"));
     strcat(buffer, "\n");
     send(conSocket, buffer, strlen (buffer), 0);
 
@@ -179,7 +179,7 @@ int readMail(int conSocket) {
     fgets(number, strlen(number), stdin);
 
     strcpy(buffer, "READ\n");
-    strcat(buffer, user);
+    strcat(buffer, strtok(user,"\n"));
     strcat(buffer, "\n");
     strcat(buffer, number);
     strcat(buffer, "\n");
@@ -220,7 +220,7 @@ int delMail(int conSocket) {
     fgets(number, strlen(number), stdin);
 
     strcpy(buffer, "DEL\n");
-    strcat(buffer, user);
+    strcat(buffer, strtok(user,"\n"));
     strcat(buffer, "\n");
     strcat(buffer, number);
     strcat(buffer, "\n");

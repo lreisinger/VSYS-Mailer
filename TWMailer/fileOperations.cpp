@@ -14,24 +14,25 @@
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
+#include <string.h>
 
 #include <vector>
 #define saveDir "data"
 using namespace std;
 
 bool saveMessage(char* empfaenger, char* sender, char* betreff, char* nachricht){
-    
+
     char path[30];
     getUserpath(empfaenger, path);
-    
+
     createDirectory(saveDir);
     createDirectory(path);
-    
-    
+
+
     char fileNamePath[30];
     memset(fileNamePath, '\0', sizeof(char)*30);
     getNextFileNamePath(path, fileNamePath);
-    
+
     ofstream myfile;
     myfile.open (fileNamePath);
     if (myfile.fail()) {
@@ -45,21 +46,21 @@ bool saveMessage(char* empfaenger, char* sender, char* betreff, char* nachricht)
 void listMessages(char* username, vector<char*>* subjects)
 {
     vector<char*> entries;
-    
+
     char path[30];   // array to hold the result.
     getUserpath(username, path);
-    
-    
+
+
     if(isDirectoryPresent(path)){
         getDirList(path, &entries);
-        
+
         for (vector<char*>::iterator it = entries.begin(); it != entries.end(); ++it)
         {
             //char tmp_subject[81];
             char* tmp_subject = (char*)malloc(sizeof(char)*81);
-            
+
             char tmp_filePath[30];
-            
+
             strcpy(tmp_filePath, path);
             strcat(tmp_filePath, *it);
             bool success = getMailSubject(tmp_filePath, tmp_subject);// 1 success; -1 not
@@ -74,14 +75,14 @@ void listMessages(char* username, vector<char*>* subjects)
 bool getMailSubject(char* path, char* subject_out){
     char line[81];
     memset(line, '\0', sizeof(char)*81);
-    
+
     FILE *fp = fopen(path,"r");
     if( fp == NULL )
     {
         perror("Error while opening the file.\n");
         return false;
     }
-    
+
     int i = 0;
     while(fgets(line,80, fp)!=NULL){
         if(i == 1)
@@ -99,25 +100,25 @@ bool getMailMessage(char* username, int fileNr, char* msg_out)
 {
     char mailNr[4];
     memset(mailNr, '\0', sizeof(char)*4);
-    
+
     char path[30];   // array to hold the result.
     getUserpath(username, path);
     strcat(path, "mail");
-    
+
     sprintf(mailNr,"%d",fileNr);
     strcat(path, mailNr);
-    
+
 
     char line[81];
     memset(line, '\0', sizeof(char)*81);
-    
+
     FILE *fp = fopen(path,"r");
     if( fp == NULL )
     {
         perror("Error while opening the file.\n");
         return false;
     }
-    
+
     int i = 0;
     while(fgets(line,80, fp)!=NULL){
         if(i == 2)
@@ -140,7 +141,7 @@ bool getMailMessage(char* username, int fileNr, char* msg_out)
 void getUserpath(char* username, char* path_out)
 {
     memset(path_out, '\0', sizeof(char)*30);
-    
+
     strcpy(path_out,saveDir); // copy string one into the result.
     strcat(path_out,"/");
     strcat(path_out,username); // append string two to the result.
@@ -149,7 +150,7 @@ void getUserpath(char* username, char* path_out)
 
 bool isDirectoryPresent(char* dir){
     struct stat st = {0};
-    
+
     if (stat(dir, &st) == -1) {
         cout << "dir is NOT present; path=" << dir << endl;
         return false;
@@ -161,19 +162,19 @@ bool isDirectoryPresent(char* dir){
 void getNextFileNamePath(const char* path, char* filenamepath)
 {
     char filepath_tmp[30];
-    
+
     int i = -1;
     char number[4];
-    
+
     do
     {
         i++;
         sprintf(number, "%d", i);
-        
+
         strcpy(filepath_tmp, path);
         strcat(filepath_tmp, "/mail");
         strcat(filepath_tmp, number);
-        
+
     }
     while(fileExists(filepath_tmp));
     strcpy(filenamepath, filepath_tmp);
@@ -188,10 +189,10 @@ void createDirectory(char* dir){
 
 void getDirList(char* path, vector<char*> * entries)
 {
-    
+
     DIR *dirHandle;
     dirent *dirEntry;
-    
+
     dirHandle = opendir(path); /* oeffne aktuelles Verzeichnis */
     if (dirHandle) {
         while (0 != (dirEntry = readdir(dirHandle))) {
