@@ -156,7 +156,7 @@ bool deleteMail(char* username, int fileNr)
         return false;
     }
     
-    
+    /*
     
     char oldname[] = "images//test_1.jpg";
     char newname[] = "images//test//test_2.jpg";
@@ -165,6 +165,7 @@ bool deleteMail(char* username, int fileNr)
         puts("Success");
     else
         perror("Failed");
+     */
     return 0;
 }
 
