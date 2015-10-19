@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <string.h>
 #define BUF 1024
-#define PORT 6001
 
 int handleInput(char* input);
 int sendMail(int conSocket);
@@ -20,8 +19,8 @@ int main (int argc, char **argv) {
     struct sockaddr_in address;
     int size;
 
-    if( argc < 2 ){
-        printf("Usage: %s ServerAdresse\n", argv[0]);
+    if( argc < 3 ){
+        printf("Usage: %s ServerAdresse Port\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
@@ -32,7 +31,7 @@ int main (int argc, char **argv) {
 
     memset(&address,0,sizeof(address));
     address.sin_family = AF_INET;
-    address.sin_port = htons (PORT);
+    address.sin_port = htons (atoi(argv[2]));
     inet_aton (argv[1], &address.sin_addr);
 
     if (connect ( create_socket, (struct sockaddr *) &address, sizeof (address)) == 0) {
