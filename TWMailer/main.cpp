@@ -270,13 +270,32 @@ bool handleList(command* cmd, int sd){
 }
 
 bool handleRead(command* cmd, int sd){
+    char reply[BUF];
+    memset(reply, '\0', sizeof(char)*BUF);
+    char msg[BUF];
+    memset(msg, '\0', sizeof(char)*BUF);
     
-    return 1;
+    bool success = getMailMessage(cmd->username, cmd->msgNr, msg);
+    
+    if(success)
+    {
+        strcpy(reply, "OK\n");
+        strcat(reply, msg);
+        sendReplyText(reply, sd);
+    }
+    else
+    {
+        strcpy(reply, "ERR\n");
+        sendReplyText(reply, sd);
+    }
+    return success;
 }
 
 bool handleDel(command* cmd, int sd){
     
-    //sendReplySuccess(success, sd);
+    bool success = getMailMessage(cmd->username, cmd->msgNr, msg);
+    
+    sendReplySuccess(success, sd);
     //return success;
     return true;
 }

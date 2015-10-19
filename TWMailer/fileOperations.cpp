@@ -137,6 +137,37 @@ bool getMailMessage(char* username, int fileNr, char* msg_out)
     return true;
 }
 
+bool deleteMail(char* username, int fileNr)
+{
+    char mailNr[4];
+    memset(mailNr, '\0', sizeof(char)*4);
+    
+    char basepath[30];   //data/username/mail
+    char path[30];   // data/username/mail12
+    getUserpath(username, path);
+    strcat(path, "mail");
+    
+    sprintf(mailNr,"%d",fileNr);
+    strcat(path, mailNr);
+    
+    if( remove(path) != 0 )
+    {
+        return false;
+    }
+    
+    
+    
+    char oldname[] = "images//test_1.jpg";
+    char newname[] = "images//test//test_2.jpg";
+    check = rename(oldname, newname);
+    if (check == 0)
+        puts("Success");
+    else
+        perror("Failed");
+    return 0;
+}
+
+
 void getUserpath(char* username, char* path_out)
 {
     memset(path_out, '\0', sizeof(char)*30);

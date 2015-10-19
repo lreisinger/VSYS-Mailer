@@ -27,4 +27,4 @@ void getDirList(char* path, std::vector<char*>* entries);
 void getUserpath(char* username, char* path_out);
 bool getMailSubject(char* path, char* subject_out);
 
-bool getMailMessage(char* username, int fileNr);
+bool getMailMessage(char* username, int fileNr, char* msg_out);
