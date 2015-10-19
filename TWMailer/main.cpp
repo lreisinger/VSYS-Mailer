@@ -292,11 +292,12 @@ bool handleRead(command* cmd, int sd){
 }
 
 bool handleDel(command* cmd, int sd){
-    
+    /*
     bool success = getMailMessage(cmd->username, cmd->msgNr, msg);
     
     sendReplySuccess(success, sd);
     //return success;
+     */
     return true;
 }
 
@@ -309,6 +310,7 @@ int sendReplySuccess(bool success, int sd){
     {
         strcpy(buffer, "ERR\n");
     }
+    cout << "Sent " << buffer << endl;
     
     return (int)send(sd, buffer, strlen (buffer), 0);
 }
@@ -317,6 +319,7 @@ int sendReplyText(char* text, int sd){
     char buffer[BUF];
     
     strcpy(buffer, text);
+    cout << "Sent " << buffer << endl;
     
     return (int)send(sd, buffer, strlen (buffer), 0);
 }
