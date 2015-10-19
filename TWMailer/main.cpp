@@ -14,13 +14,16 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+
 
 #include <iostream>
 #include <fstream>
 
 #include "fileOperations.h"
 
-#define PORT 6001
+#define PORT 6010
 #define BUF 1024
 
 using namespace std;
@@ -43,12 +46,16 @@ struct command {
 
 ssize_t sendmsg(int sd, char* text);
 command parseReceived(char* msg);
-int handleCommand(command* cmd);
+bool handleCommand(command* cmd, int sd);
 
-int handleSend(command* cmd);
-int handleList(command* cmd);
-int handleRead(command* cmd);
-int handleDel(command* cmd);
+bool handleSend(command* cmd, int sd);
+bool handleList(command* cmd, int sd);
+bool handleRead(command* cmd, int sd);
+bool handleDel(command* cmd, int sd);
+
+//replies:
+int sendReplySuccess(bool success, int sd);
+int sendReplyText(char* text, int sd);
 
 int main(int argc, const char * argv[]) {
     int queue = 1;//max 1 in queue
@@ -78,7 +85,7 @@ int main(int argc, const char * argv[]) {
     }
 
     socklen_t client_addrlen = sizeof(client_addr);
-
+    
     while (true) {
         cout << "Waiting for Connection..." << endl;
         conn_fd = accept (socket_fd, (sockaddr *) &client_addr, &client_addrlen);
@@ -113,7 +120,7 @@ int main(int argc, const char * argv[]) {
             {
                 cout << "RAW: " << endl << buffer << endl;
                 command recv_cmd = parseReceived(buffer);
-                handleCommand(&recv_cmd);
+                handleCommand(&recv_cmd, conn_fd);
             }
 
         }
@@ -141,7 +148,7 @@ command parseReceived(char* msg){
     
     
     tmp = strtok (NULL, "\n");
-    while (tmp != NULL || !finished)
+    while (tmp != NULL && !finished)
     {
         cout << tmp << endl;
         
@@ -173,74 +180,124 @@ command parseReceived(char* msg){
     }
     
     if(strcasecmp(new_cmd.cmd, "SEND") == 0){
-        strcpy(new_cmd.sender, fields[0]);
-        strcpy(new_cmd.empfaenger, fields[1]);
-        strcpy(new_cmd.betreff, fields[2]);
-        strcpy(new_cmd.message, fields[3]);
+        if(i>3){//mind. 4zeilen
+            strcpy(new_cmd.sender, fields[0]);
+            strcpy(new_cmd.empfaenger, fields[1]);
+            strcpy(new_cmd.betreff, fields[2]);
+            strcpy(new_cmd.message, fields[3]);
+        }
+        else
+        {
+            new_cmd.valid = false;
+        }
     }
     else if(strcasecmp(new_cmd.cmd, "LIST") == 0){
-        strcpy(new_cmd.username, fields[0]);
+        if(i>0){
+            strcpy(new_cmd.username, fields[0]);
+        }
+        else
+        {
+            new_cmd.valid = false;
+        }
     }
     else if((strcasecmp(new_cmd.cmd, "READ") == 0) || (strcasecmp(new_cmd.cmd, "DEL") == 0)){
-        strcpy(new_cmd.username, fields[0]);
-        new_cmd.msgNr = stoi(fields[1]);
+        if(i>1){
+            strcpy(new_cmd.username, fields[0]);
+            new_cmd.msgNr = stoi(fields[1]);
+        }
+        else
+        {
+            new_cmd.valid = false;
+        }
     }
     return new_cmd;
 }
 
 
-int handleCommand(command* cmd){
-    if(strcasecmp(cmd->cmd, "SEND") == 0){
-        return handleSend(cmd);
-    }
-    else if(strcasecmp(cmd->cmd, "LIST") == 0){
-        return handleList(cmd);
-    }
-    else if(strcasecmp(cmd->cmd, "READ") == 0){
-        return handleRead(cmd);
-    }
-    else if(strcasecmp(cmd->cmd, "DEL") == 0){
-        return handleDel(cmd);
+bool handleCommand(command* cmd, int sd){
+    if(cmd->valid){
+        if(strcasecmp(cmd->cmd, "SEND") == 0){
+            return handleSend(cmd, sd);
+        }
+        else if(strcasecmp(cmd->cmd, "LIST") == 0){
+            return handleList(cmd, sd);
+        }
+        else if(strcasecmp(cmd->cmd, "READ") == 0){
+            return handleRead(cmd, sd);
+        }
+        else if(strcasecmp(cmd->cmd, "DEL") == 0){
+            return handleDel(cmd, sd);
+        }
+        else
+        {
+            return false; //wrong cmd
+        }
     }
     else
     {
-        return -1; //wrong cmd
+        return false;
     }
 }
 
 
 
-int handleSend(command* cmd){
+bool handleSend(command* cmd, int sd){
+    bool success = saveMessage(cmd->empfaenger, cmd->sender, cmd->betreff, cmd->message);
+    sendReplySuccess(success, sd);
+    return success;
+}
+
+bool handleList(command* cmd, int sd){
+    vector<char*> subjects;
+    char subj_count[4];
+    memset(subj_count, '\0', sizeof(char)*4);
+    char reply[BUF];
+    memset(reply, '\0', sizeof(char)*BUF);
+    
+    listMessages(cmd->username, &subjects);
+    sprintf(subj_count,"%d",(int)subjects.size());
+    strcpy(reply, subj_count);//#\n
+    strcat(reply, "\n");
+    
+    for (vector<char*>::iterator it = subjects.begin(); it != subjects.end(); ++it)
+    {
+        strcat(reply, *it);//subject\n
+        strcat(reply, "\n");
+    }
+    sendReplyText(reply, sd);
+    
+    return true;
+}
+
+bool handleRead(command* cmd, int sd){
     
     return 1;
 }
 
-int handleList(command* cmd){
+bool handleDel(command* cmd, int sd){
     
-    return 1;
+    //sendReplySuccess(success, sd);
+    //return success;
+    return true;
 }
 
-int handleRead(command* cmd){
+int sendReplySuccess(bool success, int sd){
+    char buffer[BUF];
+    if(success){
+        strcpy(buffer, "OK\n");
+    }
+    else
+    {
+        strcpy(buffer, "ERR\n");
+    }
     
-    return 1;
+    return (int)send(sd, buffer, strlen (buffer), 0);
 }
 
-int handleDel(command* cmd){
+int sendReplyText(char* text, int sd){
+    char buffer[BUF];
     
-    return 1;
-}
-
-
-
-
-
-
-
-
-
-ssize_t sendmsg(int sd, char* text){
-    char sendbuffer[BUF];
-    ssize_t tmp = send(sd, text, strlen(text),0);
-    memset(text, '\0', sizeof(char)*BUF);
-    return tmp;
+    strcpy(buffer, text);
+    
+    return (int)send(sd, buffer, strlen (buffer), 0);
 }
