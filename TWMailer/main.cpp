@@ -270,6 +270,7 @@ bool handleList(command* cmd, int sd){
         strcat(reply, *it);//subject\n
         strcat(reply, "\n");
     }
+    cout << "handleList: Send:" << reply << endl;
     sendReplyText(reply, sd);
 
     return true;
