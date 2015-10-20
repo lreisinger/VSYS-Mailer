@@ -90,6 +90,13 @@ int handleInput(char* input) {
 
 int sendMail(int conSocket) {
     char from[9], to[9], subject[81], message[901], msgBuffer[901], tmp[50];
+    memset(from,0,sizeof(char)*9);
+    memset(to,0,sizeof(char)*9);
+    memset(subject,0,sizeof(char)*81);
+    memset(message,0,sizeof(char)*901);
+    memset(msgBuffer,0,sizeof(char)*901);
+    memset(tmp,0,sizeof(char)*50);
+    
 
     printf("From: ");
     fgets(from, 9, stdin);
@@ -114,12 +121,16 @@ int sendMail(int conSocket) {
         if (strcmp(msgBuffer,".\n")==0)
             break;
         strcat(message,msgBuffer);
+        printf("MEssagebuf: %s\n", msgBuffer);
+        printf("MEssage: %s\n", message);
+        
     }
-
+    
+    printf("MEssageALL: %s\n", message);
     //Protokoll bauen
 
     char buffer[BUF];
-    strcat(buffer, "SEND\n");
+    strcpy(buffer, "SEND\n");
     strcat(buffer, strtok(from,"\n"));
     strcat(buffer, "\n");
     strcat(buffer, strtok(to,"\n"));
