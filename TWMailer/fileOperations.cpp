@@ -260,7 +260,7 @@ void getDirList(char* path, vector<char*> * entries)
         while (0 != (dirEntry = readdir(dirHandle))) {
             if(dirEntry->d_type != DT_DIR){
                 entries->push_back(dirEntry->d_name);
-                cout << path << dirEntry->d_name << endl;
+                cout << "getDirList entry: " << path << dirEntry->d_name << endl;
             }
         }
         closedir(dirHandle);
