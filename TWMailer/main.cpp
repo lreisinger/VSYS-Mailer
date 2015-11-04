@@ -323,6 +323,7 @@ int sendReplySuccess(bool success, int sd){
 
 int sendReplyText(char* text, int sd){
     char buffer[BUF];
+    memset(&buffer, '\0', sizeof(char)*BUF);
 
     strcpy(buffer, text);
     cout << "Sent " << buffer << endl;
