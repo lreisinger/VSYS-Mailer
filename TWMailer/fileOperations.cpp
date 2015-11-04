@@ -15,6 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
+#include <algorithm>
 
 #include <vector>
 #define saveDir "data"
@@ -72,7 +73,7 @@ void listMessages(char* username, vector<char*>* subjects)
                 subjects->push_back(tmp_subject);
             }
         }
-        std::reverse(subjects->begin(), subjects->end());
+        reverse(subjects->begin(), subjects->end());
     }
 }
 
