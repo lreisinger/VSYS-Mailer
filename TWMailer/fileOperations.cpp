@@ -54,8 +54,10 @@ void listMessages(char* username, vector<char*>* subjects)
     if(isDirectoryPresent(path)){
         getDirList(path, &entries);
 
-        for (vector<char*>::iterator it = entries.begin(); it != entries.end(); ++it)
+        for (vector<char*>::iterator it = entries.begin(); it != entries.end(); it++)
         {
+            cout << "path:" << path << endl << "it:" << *it << endl;
+            
             char* tmp_subject = (char*)malloc(sizeof(char)*81);
 
             char tmp_filePath[30];
@@ -63,7 +65,6 @@ void listMessages(char* username, vector<char*>* subjects)
             strcpy(tmp_filePath, path);
             strcat(tmp_filePath, *it);
             
-            cout << "path:" << path << endl << "it:" << *it << endl;
             
             bool success = getMailSubject(tmp_filePath, tmp_subject);// 1 success; -1 not
             if(success){
