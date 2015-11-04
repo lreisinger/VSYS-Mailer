@@ -95,7 +95,7 @@ int handleInput(char* input) {
         return 4;
     else if (strcasecmp(input,"LOGIN\n")==0)
         return 5;
-    else if (strcasecmp(input,"LOGIN\n")==0)
+    else if (strcasecmp(input,"LOGOUT\n")==0)
         return 6;
     else
         return 0;
