@@ -62,6 +62,9 @@ void listMessages(char* username, vector<char*>* subjects)
 
             strcpy(tmp_filePath, path);
             strcat(tmp_filePath, *it);
+            
+            cout << "path:" << path << endl << "it:" << *it << endl;
+            
             bool success = getMailSubject(tmp_filePath, tmp_subject);// 1 success; -1 not
             if(success){
                 cout << "Subject: " << tmp_subject << endl;
@@ -173,7 +176,6 @@ bool deleteMail(char* username, int fileNr)
         
         char tmp_filename2[30];
         char tmp_Nr2[4];
-        memset(mailNr, '\0', sizeof(char)*4);
         
         strcpy(tmp_filename, basepath);//data/User/mail  //alter name
         sprintf(tmp_Nr,"%d",nr);
