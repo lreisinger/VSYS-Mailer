@@ -67,10 +67,6 @@ void listMessages(char* username, vector<char*>* subjects)
                 cout << "Subject: " << tmp_subject << endl;
                 subjects->push_back(tmp_subject);
             }
-            else
-            {
-                free(tmp_subject);//?
-            }
         }
     }
 }
