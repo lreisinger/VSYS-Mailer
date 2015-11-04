@@ -118,7 +118,7 @@ int sendMail(int conSocket) {
 
     //Protokoll bauen
 
-    char buffer[BUF];
+    char buffer[BUF]={'\0'};
     strcat(buffer, "SEND\n");
     strcat(buffer, strtok(from,"\n"));
     strcat(buffer, "\n");
@@ -179,16 +179,13 @@ int listMail(int conSocket) {
 }
 
 int readMail(int conSocket) {
-    char buffer[1024], user[9], number[4], temp[50];
+    char buffer[1024], user[10], number[4], temp[50];
 
     printf("Username: ");
-    fgets(user, 9, stdin);
-    if (strlen(user)>=8) {
-        fgets(temp, 50, stdin);
-    }
+    fgets(user, 10, stdin);
 
     printf("Message-number: ");
-    fgets(number, strlen(number), stdin);
+    fgets(number, 4, stdin);
 
     strcpy(buffer, "READ\n");
     strcat(buffer, strtok(user,"\n"));
@@ -222,21 +219,18 @@ int readMail(int conSocket) {
 }
 
 int delMail(int conSocket) {
-    char buffer[1024], user[9], number[4], tmp[50];
+    char buffer[1024], user[10], number[4], tmp[50];
 
     printf("Username: ");
-    fgets(user, 9, stdin);
-    if (strlen(user)>=8) {
-        fgets(tmp, 50, stdin);
-    }
+    fgets(user, 10, stdin);
 
     printf("Message-number: ");
-    fgets(number, strlen(number), stdin);
+    fgets(number, 4, stdin);
 
     strcpy(buffer, "DEL\n");
     strcat(buffer, strtok(user,"\n"));
     strcat(buffer, "\n");
-    strcat(buffer, number);
+    strcat(buffer, strtok(number, "\n"));
     strcat(buffer, "\n");
 
     send(conSocket, buffer, strlen (buffer), 0);
@@ -245,7 +239,7 @@ int delMail(int conSocket) {
 
     recv(conSocket,buffer,BUF-1, 0);
 
-    if (strcasecmp(buffer, "OK\n")) {
+    if (strcasecmp(buffer, "OK\n")==0) {
         printf("Message deleted successfully!\n");
         return 0;
     }
