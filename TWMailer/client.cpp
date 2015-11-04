@@ -107,20 +107,20 @@ int sendMail(int conSocket) {
         return 1;
     }
     char from[9], to[9], subject[81], message[901], msgBuffer[901], tmp[50];
-    memset(from,0,sizeof(char)*9);
     memset(to,0,sizeof(char)*9);
     memset(subject,0,sizeof(char)*81);
     memset(message,0,sizeof(char)*901);
     memset(msgBuffer,0,sizeof(char)*901);
     memset(tmp,0,sizeof(char)*50);
 
-
+    /* Veraltet
     printf("From: ");
     fgets(from, 9, stdin);
     //printf("%d\n",strlen(from));
     if (strlen(from)>=8) {
         fgets(tmp, 50, stdin);
     }
+    */
 
     printf("To: ");
     fgets(to, 9, stdin);
@@ -149,7 +149,7 @@ int sendMail(int conSocket) {
     char buffer[BUF]={'\0'};
 
     strcpy(buffer, "SEND\n");
-    strcat(buffer, strtok(from,"\n"));
+    strcat(buffer, strtok(userLoggedIn,"\n"));
     strcat(buffer, "\n");
     strcat(buffer, strtok(to,"\n"));
     strcat(buffer, "\n");
@@ -183,14 +183,16 @@ int listMail(int conSocket) {
     }
     char buffer[1024], user[9], temp[50];
 
+    /* Veraltet
     printf("Username: ");
     fgets(user, 9, stdin);
     if (strlen(user)>=8) {
         fgets(temp, 50, stdin);
     }
+    */
 
     strcpy(buffer, "LIST\n");
-    strcat(buffer, strtok(user,"\n"));
+    strcat(buffer, strtok(userLoggedIn,"\n"));
     strcat(buffer, "\n");
     send(conSocket, buffer, strlen (buffer), 0);
 
@@ -218,14 +220,16 @@ int readMail(int conSocket) {
     }
     char buffer[1024], user[10], number[4], temp[50];
 
+    /* Veraltet
     printf("Username: ");
     fgets(user, 10, stdin);
+    */
 
     printf("Message-number: ");
     fgets(number, 4, stdin);
 
     strcpy(buffer, "READ\n");
-    strcat(buffer, strtok(user,"\n"));
+    strcat(buffer, strtok(userLoggedIn,"\n"));
     strcat(buffer, "\n");
     strcat(buffer, number);
     strcat(buffer, "\n");
@@ -262,14 +266,16 @@ int delMail(int conSocket) {
     }
     char buffer[1024], user[10], number[4], tmp[50];
 
+    /* Veraltet
     printf("Username: ");
     fgets(user, 10, stdin);
+    */
 
     printf("Message-number: ");
     fgets(number, 4, stdin);
 
     strcpy(buffer, "DEL\n");
-    strcat(buffer, strtok(user,"\n"));
+    strcat(buffer, strtok(userLoggedIn,"\n"));
     strcat(buffer, "\n");
     strcat(buffer, strtok(number, "\n"));
     strcat(buffer, "\n");
