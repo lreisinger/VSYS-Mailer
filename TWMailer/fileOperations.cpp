@@ -257,12 +257,13 @@ void getDirList(char* path, vector<char*> * entries)
     DIR *dirHandle;
     dirent *dirEntry;
     
-    char* tmp = (char*)calloc(1024, sizeof(char));
 
     dirHandle = opendir(path); /* oeffne aktuelles Verzeichnis */
     if (dirHandle) {
         while (0 != (dirEntry = readdir(dirHandle))) {
             if(dirEntry->d_type != DT_DIR){
+                char* tmp = (char*)calloc(1024, sizeof(char));
+                
                 strcpy(tmp, dirEntry->d_name);
                 entries->push_back(tmp);
                 cout << "getDirList entry: " << path << dirEntry->d_name << endl;
@@ -270,7 +271,6 @@ void getDirList(char* path, vector<char*> * entries)
         }
         closedir(dirHandle);
     }
-    //free(tmp);
 }
 
 bool fileExists(const char* file) {
