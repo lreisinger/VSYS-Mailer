@@ -285,7 +285,7 @@ bool handleSend(command* cmd, int sd){
 
 bool handleLogin(command* cmd, int sd){
     //bool success = saveMessage(cmd->empfaenger, cmd->sender, cmd->betreff, cmd->message);
-    if(strcmp(cmd->username, "lukas3")){
+    if(strcmp(cmd->username, "lukas3") == 0){
         sendReplySuccess(false, sd);
         return false;
     }
