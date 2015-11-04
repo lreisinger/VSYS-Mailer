@@ -54,22 +54,22 @@ void listMessages(char* username, vector<char*>* subjects)
     if(isDirectoryPresent(path)){
         getDirList(path, &entries);
 
-        for (vector<char*>::iterator it = entries.begin(); it != entries.end(); ++it)
+        for (vector<char*>::iterator it = entries.begin(); it != entries.end(); it++)
         {
+            cout << "path:" << path << endl << "it:" << *it << endl;
+            
             char* tmp_subject = (char*)malloc(sizeof(char)*81);
 
             char tmp_filePath[30];
 
             strcpy(tmp_filePath, path);
             strcat(tmp_filePath, *it);
+            
+            
             bool success = getMailSubject(tmp_filePath, tmp_subject);// 1 success; -1 not
             if(success){
                 cout << "Subject: " << tmp_subject << endl;
                 subjects->push_back(tmp_subject);
-            }
-            else
-            {
-                free(tmp_subject);//?
             }
         }
     }
@@ -83,6 +83,7 @@ bool getMailSubject(char* path, char* subject_out){
     if( fp == NULL )
     {
         perror("Error while opening the file.\n");
+        perror(path);
         return false;
     }
 
@@ -177,7 +178,6 @@ bool deleteMail(char* username, int fileNr)
         
         char tmp_filename2[30];
         char tmp_Nr2[4];
-        memset(mailNr, '\0', sizeof(char)*4);
         
         strcpy(tmp_filename, basepath);//data/User/mail  //alter name
         sprintf(tmp_Nr,"%d",nr);
@@ -256,13 +256,17 @@ void getDirList(char* path, vector<char*> * entries)
 
     DIR *dirHandle;
     dirent *dirEntry;
+    
 
     dirHandle = opendir(path); /* oeffne aktuelles Verzeichnis */
     if (dirHandle) {
         while (0 != (dirEntry = readdir(dirHandle))) {
             if(dirEntry->d_type != DT_DIR){
-                entries->push_back(dirEntry->d_name);
-                cout << path << dirEntry->d_name << endl;
+                char* tmp = (char*)calloc(1024, sizeof(char));
+                
+                strcpy(tmp, dirEntry->d_name);
+                entries->push_back(tmp);
+                cout << "getDirList entry: " << path << dirEntry->d_name << endl;
             }
         }
         closedir(dirHandle);
