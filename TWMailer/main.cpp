@@ -38,6 +38,7 @@ struct command {
     char message[918];
     //LIST
     char username[8];
+    char password[50];
     //READ/DEL
     //username
     int msgNr;
@@ -48,6 +49,8 @@ ssize_t sendmsg(int sd, char* text);
 command parseReceived(char* msg);
 bool handleCommand(command* cmd, int sd);
 
+
+bool handleLogin(command* cmd, int sd);
 bool handleSend(command* cmd, int sd);
 bool handleList(command* cmd, int sd);
 bool handleRead(command* cmd, int sd);
@@ -216,27 +219,54 @@ command parseReceived(char* msg){
             new_cmd.valid = false;
         }
     }
+    else if(strcasecmp(new_cmd.cmd, "LOGIN") == 0){
+        if(i>0){
+            strcpy(new_cmd.username, fields[0]);
+            strcpy(new_cmd.password, fields[1]);
+        }
+        else
+        {
+            new_cmd.valid = false;
+        }
+    }
     return new_cmd;
 }
 
 
 bool handleCommand(command* cmd, int sd){
     if(cmd->valid){
-        if(strcasecmp(cmd->cmd, "SEND") == 0){
-            return handleSend(cmd, sd);
-        }
-        else if(strcasecmp(cmd->cmd, "LIST") == 0){
-            return handleList(cmd, sd);
-        }
-        else if(strcasecmp(cmd->cmd, "READ") == 0){
-            return handleRead(cmd, sd);
-        }
-        else if(strcasecmp(cmd->cmd, "DEL") == 0){
-            return handleDel(cmd, sd);
-        }
-        else
+        bool loggedIn = false;
+        if(loggedIn)
         {
-            return false; //wrong cmd
+            if(strcasecmp(cmd->cmd, "LOGIN") == 0){
+                return handleLogin(cmd, sd);
+            }
+            else
+            {
+                return false; //no login
+            }
+        }
+        else//not logged in
+        {
+            if(strcasecmp(cmd->cmd, "SEND") == 0){
+                return handleSend(cmd, sd);
+            }
+            else if(strcasecmp(cmd->cmd, "LIST") == 0){
+                return handleList(cmd, sd);
+            }
+            else if(strcasecmp(cmd->cmd, "READ") == 0){
+                return handleRead(cmd, sd);
+            }
+            else if(strcasecmp(cmd->cmd, "DEL") == 0){
+                return handleDel(cmd, sd);
+            }
+            else if(strcasecmp(cmd->cmd, "LOGIN") == 0){
+                return handleLogin(cmd, sd);
+            }
+            else
+            {
+                return false; //wrong cmd
+            }
         }
     }
     else
@@ -251,6 +281,20 @@ bool handleSend(command* cmd, int sd){
     bool success = saveMessage(cmd->empfaenger, cmd->sender, cmd->betreff, cmd->message);
     sendReplySuccess(success, sd);
     return success;
+}
+
+bool handleLogin(command* cmd, int sd){
+    //bool success = saveMessage(cmd->empfaenger, cmd->sender, cmd->betreff, cmd->message);
+    if(strcmp(cmd->username, "lukas3") == 0){
+        sendReplySuccess(false, sd);
+        return false;
+    }
+    else
+    {
+        sendReplySuccess(true, sd);
+        return true;
+    }
+    //return success;
 }
 
 bool handleList(command* cmd, int sd){
