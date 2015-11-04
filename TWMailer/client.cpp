@@ -21,9 +21,15 @@ int sendMail(int conSocket);
 int listMail(int conSocket);
 int readMail(int conSocket);
 int delMail(int conSocket);
+int login(int conSocket);
+
+bool loggedIn;
+char userLoggedIn[9];
 
 int main (int argc, char **argv) {
     int create_socket;
+    loggedIn=false;
+    //memset(&userLoggedIn, '\0', strlen(userLoggedIn));
     char buffer[BUF];
     struct sockaddr_in address;
     int size;
@@ -65,6 +71,7 @@ int main (int argc, char **argv) {
             case 2: listMail(create_socket); break;
             case 3: readMail(create_socket); break;
             case 4: delMail(create_socket); break;
+            case 5: login(create_socket); break;
             default: printf("Unknown Command\n");
         }
     }
@@ -84,6 +91,8 @@ int handleInput(char* input) {
         return 3;
     else if (strcasecmp(input,"DEL\n")==0)
         return 4;
+    else if (strcasecmp(input,"LOGIN\n")==0)
+        return 5;
     else
         return 0;
 }
@@ -121,12 +130,12 @@ int sendMail(int conSocket) {
         if (strcmp(msgBuffer,".\n")==0)
             break;
         strcat(message,msgBuffer);
-        printf("MEssagebuf: %s\n", msgBuffer);
-        printf("MEssage: %s\n", message);
+        //printf("MEssagebuf: %s\n", msgBuffer);
+        //printf("MEssage: %s\n", message);
 
     }
 
-    printf("MEssageALL: %s\n", message);
+    //printf("MEssageALL: %s\n", message);
     //Protokoll bauen
 
     char buffer[BUF]={'\0'};
@@ -141,7 +150,7 @@ int sendMail(int conSocket) {
     strcat(buffer, message);
     strcat(buffer, ".\n");
 
-    send(conSocket, buffer, strlen (buffer), 0);
+    send(conSocket, buffer, strlen(buffer), 0);
 
     memset(&buffer, '\0', strlen(buffer));
 
@@ -258,6 +267,44 @@ int delMail(int conSocket) {
     else {
         printf("Message could not be deleted!\n");
         return 1;
+    }
+
+}
+
+int login(int conSocket) {
+    char user[10], pass[50];
+
+    printf("Username: ");
+    fgets(user, 10, stdin);
+
+    //printf("Password: ");
+    strcpy(pass,getpass("Password: "));
+
+    char buffer[BUF];
+
+    //Protokoll bauen
+    strcpy(buffer,"LOGIN\n");
+    strcat(buffer,strtok(user,"\n"));
+    strcat(buffer, "\n");
+    strcat(buffer, strtok(pass,"\n"));
+
+    send(conSocket, buffer, strlen(buffer), 0);
+
+    memset(&buffer, '\0', strlen(buffer));
+
+    recv(conSocket,buffer,BUF-1, 0);
+
+    if (strcasecmp(buffer,"OK\n")==0) {
+        loggedIn=true;
+        strcpy(userLoggedIn, user);
+        printf("Login successful!");
+        return 1;
+    }
+    else {
+        loggedIn=false;
+        memset(&userLoggedIn, '\0', strlen(userLoggedIn));
+        printf("Login failed!");
+        return 0;
     }
 
 }
