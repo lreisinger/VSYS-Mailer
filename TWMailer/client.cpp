@@ -73,6 +73,7 @@ int main (int argc, char **argv) {
             case 3: readMail(create_socket); break;
             case 4: delMail(create_socket); break;
             case 5: login(create_socket); break;
+            case 6: logout(); break;
             default: printf("Unknown Command\n");
         }
     }
