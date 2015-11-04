@@ -216,7 +216,7 @@ int readMail(int conSocket) {
 
     send(conSocket, buffer, strlen (buffer), 0);
 
-    memset(&buffer, '\0', strlen(buffer));
+    memset(&buffer, '\0', BUF);
 
     recv(conSocket,buffer,BUF-1, 0);
 
