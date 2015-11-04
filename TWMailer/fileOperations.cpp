@@ -270,7 +270,7 @@ void getDirList(char* path, vector<char*> * entries)
         }
         closedir(dirHandle);
     }
-    free(tmp);
+    //free(tmp);
 }
 
 bool fileExists(const char* file) {
