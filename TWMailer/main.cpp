@@ -282,6 +282,8 @@ bool handleRead(command* cmd, int sd){
     memset(msg, '\0', sizeof(char)*BUF);
 
     bool success = getMailMessage(cmd->username, cmd->msgNr, msg);
+    
+    cout << "handleREAD checkMSG: \n" << msg << endl;
 
     if(success)
     {
