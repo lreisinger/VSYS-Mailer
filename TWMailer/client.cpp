@@ -22,6 +22,7 @@ int listMail(int conSocket);
 int readMail(int conSocket);
 int delMail(int conSocket);
 int login(int conSocket);
+int logout();
 
 bool loggedIn;
 char userLoggedIn[9];
@@ -93,6 +94,8 @@ int handleInput(char* input) {
         return 4;
     else if (strcasecmp(input,"LOGIN\n")==0)
         return 5;
+    else if (strcasecmp(input,"LOGIN\n")==0)
+        return 6;
     else
         return 0;
 }
@@ -290,21 +293,28 @@ int login(int conSocket) {
 
     send(conSocket, buffer, strlen(buffer), 0);
 
-    memset(&buffer, '\0', strlen(buffer));
+    memset(&buffer, '\0', BUF);
 
     recv(conSocket,buffer,BUF-1, 0);
 
     if (strcasecmp(buffer,"OK\n")==0) {
         loggedIn=true;
         strcpy(userLoggedIn, user);
-        printf("Login successful!");
+        printf("Login successful!\n");
         return 1;
     }
     else {
         loggedIn=false;
         memset(&userLoggedIn, '\0', strlen(userLoggedIn));
-        printf("Login failed!");
+        printf("Login failed!\n");
         return 0;
     }
 
+}
+
+int logout() {
+    loggedIn=false;
+    memset(&userLoggedIn, '\0', strlen(userLoggedIn));
+    printf("Logged out!\n");
+    return 0;
 }
