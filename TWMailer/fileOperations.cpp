@@ -83,6 +83,7 @@ bool getMailSubject(char* path, char* subject_out){
     if( fp == NULL )
     {
         perror("Error while opening the file.\n");
+        perror(path);
         return false;
     }
 
