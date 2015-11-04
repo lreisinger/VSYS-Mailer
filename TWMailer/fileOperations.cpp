@@ -56,7 +56,6 @@ void listMessages(char* username, vector<char*>* subjects)
 
         for (vector<char*>::iterator it = entries.begin(); it != entries.end(); ++it)
         {
-            //char tmp_subject[81];
             char* tmp_subject = (char*)malloc(sizeof(char)*81);
 
             char tmp_filePath[30];
@@ -67,6 +66,10 @@ void listMessages(char* username, vector<char*>* subjects)
             if(success){
                 cout << "Subject: " << tmp_subject << endl;
                 subjects->push_back(tmp_subject);
+            }
+            else
+            {
+                free(tmp_subject);//?
             }
         }
     }
@@ -159,6 +162,7 @@ bool deleteMail(char* username, int fileNr)
     
     if( remove(path) != 0 )
     {
+        cout << "Could not delete " << path << endl;
         return false;
     }
     
@@ -169,7 +173,7 @@ bool deleteMail(char* username, int fileNr)
         
         char tmp_filename[30];
         char tmp_Nr[4];
-        memset(mailNr, '\0', sizeof(char)*4);
+        
         
         char tmp_filename2[30];
         char tmp_Nr2[4];
@@ -201,8 +205,6 @@ bool deleteMail(char* username, int fileNr)
 
 void getUserpath(char* username, char* path_out)
 {
-    memset(path_out, '\0', sizeof(char)*30);
-
     strcpy(path_out,saveDir); // copy string one into the result.
     strcat(path_out,"/");
     strcat(path_out,username); // append string two to the result.
