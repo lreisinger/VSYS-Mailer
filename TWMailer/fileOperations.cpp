@@ -18,15 +18,16 @@
 #include <algorithm>
 
 #include <vector>
-#define saveDir "data"
+
 using namespace std;
+
 
 bool saveMessage(char* empfaenger, char* sender, char* betreff, char* nachricht){
 
     char path[30];
     getUserpath(empfaenger, path);
 
-    createDirectory(saveDir);
+    createDirectory(mailspool);
     createDirectory(path);
 
 
@@ -73,7 +74,7 @@ void listMessages(char* username, vector<char*>* subjects)
                 subjects->push_back(tmp_subject);
             }
         }
-        reverse(subjects->begin(), subjects->end());
+        //reverse(subjects->begin(), subjects->end());
     }
 }
 
@@ -207,7 +208,7 @@ bool deleteMail(char* username, int fileNr)
 
 void getUserpath(char* username, char* path_out)
 {
-    strcpy(path_out,saveDir); // copy string one into the result.
+    strcpy(path_out,mailspool); // copy string one into the result.
     strcat(path_out,"/");
     strcat(path_out,username); // append string two to the result.
     strcat(path_out,"/");

@@ -17,6 +17,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <signal.h>
+
 
 #include <iostream>
 #include <fstream>
@@ -24,6 +26,7 @@
 #include <pthread.h>
 
 #include "fileOperations.h"
+#include "ldap.h"
 
 #define PORT 6010
 #define BUF 1024
@@ -47,11 +50,14 @@ struct command {
     bool valid;
 } ;
 
-typedef struct
+struct ThreadData
 {
     int fd;
     struct sockaddr_in* client_addr;
-} ThreadData;
+    ~ThreadData() {
+        free(client_addr);
+    }
+};
 
 
 void* handleClient(void* arg);
@@ -71,15 +77,38 @@ bool handleDel(command* cmd, int sd);
 int sendReplySuccess(bool success, int sd);
 int sendReplyText(char* text, int sd);
 
+void sighandler(sig_t s);
+void exit_server();
+
+
+int socket_fd;
+
+
+void sighandler(int s){
+    exit_server();
+}
+
+
+
 int main(int argc, const char * argv[]) {
+    struct sigaction sigIntHandler;
+    
+    sigIntHandler.sa_handler = sighandler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
+    
+    sigaction(SIGINT, &sigIntHandler, NULL);
+    
+    //signal END (ctrl+c)
 
     if( argc < 2 ){
         printf("Usage: %s Port\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-
+    
+    mailspool = argv[2];
+    
     int queue = 1;//max 1 in queue
-    int socket_fd;
     int conn_fd;
     struct sockaddr_in my_addr;
     struct sockaddr_in client_addr;
@@ -119,9 +148,7 @@ int main(int argc, const char * argv[]) {
         td->client_addr = client_arg;
         
         pthread_t tid;
-        
         pthread_create(&tid, NULL, handleClient, td);
-
     }
 
     return 0;
@@ -132,7 +159,7 @@ void* handleClient(void* arg)
     ThreadData* data = (ThreadData*)arg;
     int fd = data->fd;
     
-    free(data->client_addr);
+    //free(data->client_addr); wird im struct destructor gefreed
     free(data);
     
     char buffer[BUF];
@@ -319,24 +346,16 @@ bool handleSend(command* cmd, int sd){
 }
 
 bool handleLogin(command* cmd, int sd){
-    //bool success = saveMessage(cmd->empfaenger, cmd->sender, cmd->betreff, cmd->message);
-    if(strcmp(cmd->username, "lukas3") == 0){
-        sendReplySuccess(false, sd);
-        return false;
-    }
-    else
-    {
-        sendReplySuccess(true, sd);
-        return true;
-    }
-    //return success;
+    bool success = login(cmd->username, cmd->password);
+    sendReplySuccess(success, sd);
+    return success;
 }
 
 bool handleList(command* cmd, int sd){
     vector<char*> subjects;
-    char subj_count[4];
+    char subj_count[4], reply[BUF];
+    
     memset(subj_count, '\0', sizeof(char)*4);
-    char reply[BUF];
     memset(reply, '\0', sizeof(char)*BUF);
 
     listMessages(cmd->username, &subjects);
@@ -355,15 +374,13 @@ bool handleList(command* cmd, int sd){
 }
 
 bool handleRead(command* cmd, int sd){
-    char reply[BUF];
+    char reply[BUF], msg[BUF];
+    
     memset(reply, '\0', sizeof(char)*BUF);
-    char msg[BUF];
     memset(msg, '\0', sizeof(char)*BUF);
 
     bool success = getMailMessage(cmd->username, cmd->msgNr, msg);
     
-    cout << "handleREAD checkMSG: \n" << msg << endl;
-
     if(success)
     {
         strcpy(reply, "OK\n");
@@ -408,4 +425,13 @@ int sendReplyText(char* text, int sd){
     cout << "Sent " << buffer << endl;
 
     return (int)send(sd, buffer, strlen (buffer), 0);
+}
+
+
+void exit_server()
+{
+    cout << "Server shut down" << endl;
+    //close all sockets
+    close(socket_fd);
+    exit(1);
 }

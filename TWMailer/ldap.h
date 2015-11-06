@@ -16,9 +16,10 @@ struct user_ldap {
     char username[9];
     int retries;
     char ip[16];
+    int timestamp_lasttry;
 } ;
 
-
+int login(char* user, char* pass);
 
 #endif /* defined(__TWMailer__ldap__) */
 

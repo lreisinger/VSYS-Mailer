@@ -16,6 +16,7 @@
 #endif /* defined(__TWMailer__fileOperations__) */
 
 
+char* mailspool;
 
 bool saveMessage(char* empfaenger, char* sender, char* betreff, char* nachricht);
 void createDirectory(char* dir);
