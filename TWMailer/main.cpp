@@ -21,6 +21,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <pthread.h>
+
 #include "fileOperations.h"
 
 #define PORT 6010
@@ -37,13 +39,22 @@ struct command {
     char betreff[81];
     char message[918];
     //LIST
-    char username[8];
+    char username[9];
     char password[50];
     //READ/DEL
     //username
     int msgNr;
     bool valid;
 } ;
+
+typedef struct
+{
+    int fd;
+    struct sockaddr_in* client_addr;
+} ThreadData;
+
+
+void* handleClient(void* arg);
 
 ssize_t sendmsg(int sd, char* text);
 command parseReceived(char* msg);
@@ -73,7 +84,6 @@ int main(int argc, const char * argv[]) {
     struct sockaddr_in my_addr;
     struct sockaddr_in client_addr;
 
-    char buffer[BUF];
 
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     memset(&my_addr, 0, sizeof(my_addr));
@@ -98,46 +108,71 @@ int main(int argc, const char * argv[]) {
     while (true) {
         cout << "Waiting for Connection..." << endl;
         conn_fd = accept (socket_fd, (sockaddr *) &client_addr, &client_addrlen);
-
-        if (conn_fd > 0)
-        {
-            cout << "Client: " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << endl;
-
-            strcpy(buffer, "Welcome Client!\n");//welcome nachricht
-            send(conn_fd, buffer, strlen(buffer),0);
-            memset(&buffer, '\0', sizeof(buffer));
-
-        }
-
-
-        while(true)//immer receiven
-        {
-            memset(&buffer, '\0', sizeof(buffer));
-            ssize_t recv_len = recv(conn_fd, &buffer, BUF-1, 0);
-            buffer[BUF-1] = '\0';
-            if(recv_len == -1){
-                perror("recv error");
-            }
-            else if (recv_len == 0)//close by client
-            {
-                cout << "Connection closed by Client" << endl << "Quitting..." << endl;
-                close(conn_fd);
-                close (socket_fd);
-                exit(1);
-            }
-            else
-            {
-                cout << "RAW: " << endl << buffer << endl;
-                command recv_cmd = parseReceived(buffer);
-                handleCommand(&recv_cmd, conn_fd);
-            }
-
-        }
+        
+        cout << "Client: " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << endl;
+        
+        struct sockaddr_in* client_arg = (struct sockaddr_in*) malloc(sizeof(sockaddr_in));
+        *client_arg = client_addr;
+        
+        ThreadData* td = (ThreadData*) malloc(sizeof(ThreadData));
+        td->fd = conn_fd;
+        td->client_addr = client_arg;
+        
+        pthread_t tid;
+        
+        pthread_create(&tid, NULL, handleClient, td);
 
     }
 
     return 0;
 }
+
+void* handleClient(void* arg)
+{
+    ThreadData* data = (ThreadData*)arg;
+    int fd = data->fd;
+    
+    free(data->client_addr);
+    free(data);
+    
+    char buffer[BUF];
+    
+    if (fd > 0)
+    {
+        
+        strcpy(buffer, "Welcome Client!\n");//welcome nachricht
+        send(fd, buffer, strlen(buffer),0);
+        memset(&buffer, '\0', sizeof(buffer));
+        
+    }
+    
+    
+    while(true)//immer receiven
+    {
+        memset(&buffer, '\0', sizeof(buffer));
+        ssize_t recv_len = recv(fd, &buffer, BUF-1, 0);
+        buffer[BUF-1] = '\0';
+        if(recv_len == -1){
+            perror("recv error");
+        }
+        else if (recv_len == 0)//close by client
+        {
+            cout << "Connection closed by Client" << endl << "Quitting..." << endl;
+            close(fd);
+            break;
+        }
+        else
+        {
+            cout << "RAW: " << endl << buffer << endl;
+            command recv_cmd = parseReceived(buffer);
+            handleCommand(&recv_cmd, fd);
+        }
+        
+    }
+    
+    return NULL;
+}
+
 
 command parseReceived(char* msg){
     command new_cmd = {};
