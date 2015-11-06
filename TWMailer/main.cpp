@@ -157,7 +157,7 @@ void* handleClient(void* arg)
         }
         else if (recv_len == 0)//close by client
         {
-            cout << "Connection closed by Client" << endl << "Quitting..." << endl;
+            cout << "Connection closed by Client" << endl << "Still listening for Connections..." << endl;
             close(fd);
             break;
         }
