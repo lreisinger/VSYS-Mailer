@@ -310,7 +310,6 @@ command parseReceived(char* msg, int sd){
     else if(strcasecmp(new_cmd.cmd, "LIST") == 0){
         if(i>0){
             strcpy(new_cmd.username, fields[0]);
-            cout << "list1" << endl;
         }
         else
         {
@@ -355,7 +354,6 @@ bool handleCommand(command* cmd, int sd, bool* loggedIn){
     if(cmd->valid){
         if(!(*loggedIn))
         {
-            cout << "!list2" << *loggedIn << endl;
             if(strcasecmp(cmd->cmd, "LOGIN") == 0){
                 int success = handleLogin(cmd, sd);
                 if(success > 0)
@@ -376,7 +374,6 @@ bool handleCommand(command* cmd, int sd, bool* loggedIn){
             }
             else if(strcasecmp(cmd->cmd, "LIST") == 0){
                 
-                cout << "list2" << loggedIn << endl;
                 return handleList(cmd, sd);
             }
             else if(strcasecmp(cmd->cmd, "READ") == 0){
