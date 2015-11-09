@@ -217,12 +217,12 @@ command parseReceived(char* msg){
 
 
     int i = 0;
-    cout << endl << "HANDLE:" << endl;
 
 
     bool finished = false;
     char* tmp = strtok (msg,"\n");
     strcpy(new_cmd.cmd, tmp);
+    cout << endl << "HANDLE " << new_cmd.cmd << ":" << endl;
 
 
     tmp = strtok (NULL, "\n");
@@ -289,7 +289,7 @@ command parseReceived(char* msg){
         }
     }
     else if(strcasecmp(new_cmd.cmd, "LOGIN") == 0){
-        if(i>0){
+        if(i>1){
             strcpy(new_cmd.username, fields[0]);
             strcpy(new_cmd.password, fields[1]);
         }
@@ -305,7 +305,7 @@ command parseReceived(char* msg){
 bool handleCommand(command* cmd, int sd){
     if(cmd->valid){
         bool loggedIn = false;
-        if(loggedIn)
+        if(!loggedIn)
         {
             if(strcasecmp(cmd->cmd, "LOGIN") == 0){
                 return handleLogin(cmd, sd);
