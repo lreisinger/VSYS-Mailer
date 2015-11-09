@@ -310,6 +310,7 @@ command parseReceived(char* msg, int sd){
     else if(strcasecmp(new_cmd.cmd, "LIST") == 0){
         if(i>0){
             strcpy(new_cmd.username, fields[0]);
+            cout << "list1" << endl;
         }
         else
         {
@@ -373,6 +374,8 @@ bool handleCommand(command* cmd, int sd, bool loggedIn){
                 return handleSend(cmd, sd);
             }
             else if(strcasecmp(cmd->cmd, "LIST") == 0){
+                
+                cout << "list2" << endl;
                 return handleList(cmd, sd);
             }
             else if(strcasecmp(cmd->cmd, "READ") == 0){
@@ -448,6 +451,8 @@ bool handleLogout(command* cmd, int sd){
 }
 
 bool handleList(command* cmd, int sd){
+    
+    cout << "list3" << endl;
     vector<char*> subjects;
     char subj_count[4], reply[BUF];
     
