@@ -101,17 +101,27 @@ int login(char* user, char* pass)//1 = success, 0 = wrong pass, -1 = wrong user,
     printf("Total results: %d\n", ldap_count_entries(ld, result));
     
     bool found = false;
+    int i = 0;
     for (e = ldap_first_entry(ld, result); e != NULL; e = ldap_next_entry(ld,e))
     {
         strcpy(bind_dn, ldap_get_dn(ld,e));
         printf("DN: '%s'\n", bind_dn);
         found = true;
+        i++;
     }
+    
     
     /* free memory used for result */
     ldap_msgfree(result);
     free(attribs[0]);
     free(attribs[1]);
+    
+    if(i > 1)
+    {
+        fprintf(stderr, "LDAP search error: %s\n", "too many results" );
+        return -3;
+    }
+    
     printf("LDAP search suceeded\n");
 
     if(!found){
