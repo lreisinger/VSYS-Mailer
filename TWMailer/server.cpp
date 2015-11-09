@@ -363,15 +363,17 @@ bool handleSend(command* cmd, int sd){
 }
 
 bool handleLogin(command* cmd, int sd){
-    bool success = login(cmd->username, cmd->password);
+    int returnvalue = login(cmd->username, cmd->password);
+    bool success = (returnvalue > 0) ? true : false;
     sendReplySuccess(success, sd);
     return success;
 }
 
 bool handleLogout(command* cmd, int sd){
-    bool success = login(cmd->username, cmd->password);
-    sendReplySuccess(success, sd);
-    return success;
+    //bool success = login(cmd->username, cmd->password);
+    //sendReplySuccess(success, sd);
+    //return success;
+    return true;
 }
 
 bool handleList(command* cmd, int sd){
