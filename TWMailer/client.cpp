@@ -106,7 +106,7 @@ int sendMail(int conSocket) {
         printf("You must be logged in to use that command!\n");
         return 1;
     }
-    char from[9], to[9], subject[81], message[901], msgBuffer[901], tmp[50];
+    char /*from[9],*/ to[9], subject[81], message[901], msgBuffer[901], tmp[50];
     memset(to,0,sizeof(char)*9);
     memset(subject,0,sizeof(char)*81);
     memset(message,0,sizeof(char)*901);
@@ -181,7 +181,7 @@ int listMail(int conSocket) {
         printf("You must be logged in to use that command!\n");
         return 1;
     }
-    char buffer[1024], user[9], temp[50];
+    char buffer[1024]/*, user[9], temp[50]*/;
 
     /* Veraltet
     printf("Username: ");
@@ -218,7 +218,7 @@ int readMail(int conSocket) {
         printf("You must be logged in to use that command!\n");
         return 1;
     }
-    char buffer[1024], user[10], number[4], temp[50];
+    char buffer[1024], /*user[10], temp[50],*/ number[4];
 
     /* Veraltet
     printf("Username: ");
@@ -264,7 +264,7 @@ int delMail(int conSocket) {
         printf("You must be logged in to use that command!\n");
         return 1;
     }
-    char buffer[1024], user[10], number[4], tmp[50];
+    char buffer[1024], /*user[10],, tmp[50]*/ number[4];
 
     /* Veraltet
     printf("Username: ");
