@@ -141,7 +141,7 @@ void listMessages(char* username, vector<char*>* subjects)
                 subjects->push_back(tmp_subject);
             }
         }
-        //reverse(subjects->begin(), subjects->end());
+        reverse(subjects->begin(), subjects->end());
     }
 }
 
