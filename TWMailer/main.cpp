@@ -31,6 +31,8 @@
 #define PORT 6010
 #define BUF 1024
 
+#define MAXCLIENTS 100
+
 using namespace std;
 
 
@@ -68,6 +70,7 @@ bool handleCommand(command* cmd, int sd);
 
 
 bool handleLogin(command* cmd, int sd);
+bool handleLogout(command* cmd, int sd);
 bool handleSend(command* cmd, int sd);
 bool handleList(command* cmd, int sd);
 bool handleRead(command* cmd, int sd);
@@ -120,6 +123,7 @@ int main(int argc, const char * argv[]) {
     my_addr.sin_family = AF_INET;
     my_addr.sin_port = htons(atoi(argv[1]));
     my_addr.sin_addr.s_addr = htons(INADDR_ANY);
+    
 
     if( ::bind(socket_fd, (struct sockaddr *) &my_addr, sizeof(my_addr)) == -1){
         perror("bind error");
@@ -143,6 +147,7 @@ int main(int argc, const char * argv[]) {
         struct sockaddr_in* client_arg = (struct sockaddr_in*) malloc(sizeof(sockaddr_in));
         *client_arg = client_addr;
         
+        //arguments
         ThreadData* td = (ThreadData*) malloc(sizeof(ThreadData));
         td->fd = conn_fd;
         td->client_addr = client_arg;
@@ -159,7 +164,7 @@ void* handleClient(void* arg)
     ThreadData* data = (ThreadData*)arg;
     int fd = data->fd;
     
-    //free(data->client_addr); wird im struct destructor gefreed
+    
     free(data);
     
     char buffer[BUF];
@@ -322,8 +327,8 @@ bool handleCommand(command* cmd, int sd){
             else if(strcasecmp(cmd->cmd, "DEL") == 0){
                 return handleDel(cmd, sd);
             }
-            else if(strcasecmp(cmd->cmd, "LOGIN") == 0){
-                return handleLogin(cmd, sd);
+            else if(strcasecmp(cmd->cmd, "LOGOUT") == 0){
+                return handleLogout(cmd, sd);
             }
             else
             {
@@ -346,6 +351,12 @@ bool handleSend(command* cmd, int sd){
 }
 
 bool handleLogin(command* cmd, int sd){
+    bool success = login(cmd->username, cmd->password);
+    sendReplySuccess(success, sd);
+    return success;
+}
+
+bool handleLogout(command* cmd, int sd){
     bool success = login(cmd->username, cmd->password);
     sendReplySuccess(success, sd);
     return success;

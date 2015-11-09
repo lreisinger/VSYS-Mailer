@@ -16,11 +16,11 @@
 #endif /* defined(__TWMailer__fileOperations__) */
 
 
-char* mailspool;
+const char* mailspool;
 
 bool saveMessage(char* empfaenger, char* sender, char* betreff, char* nachricht);
-void createDirectory(char* dir);
-bool isDirectoryPresent(char* dir);
+void createDirectory(const char* dir);
+bool isDirectoryPresent(const char* dir);
 bool fileExists(const char* file);
 void getNextFileNamePath(const char* path, char* filenamepath);
 void listMessages(char* username, std::vector<char*>* subjects);

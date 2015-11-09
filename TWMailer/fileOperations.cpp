@@ -214,7 +214,7 @@ void getUserpath(char* username, char* path_out)
     strcat(path_out,"/");
 }
 
-bool isDirectoryPresent(char* dir){
+bool isDirectoryPresent(const char* dir){
     struct stat st = {0};
 
     if (stat(dir, &st) == -1) {
@@ -247,7 +247,7 @@ void getNextFileNamePath(const char* path, char* filenamepath)
     strcpy(filenamepath, filepath_tmp);
 }
 
-void createDirectory(char* dir){
+void createDirectory(const char* dir){
     if(!isDirectoryPresent(dir))
     {
         mkdir(dir, 0700);
