@@ -75,7 +75,7 @@ char* recvFile(int fileBytes, int sd);
 
 ssize_t sendmsg(int sd, char* text);
 command parseReceived(char* msg, int sd);
-bool handleCommand(command* cmd, int sd, bool loggedIn);
+bool handleCommand(command* cmd, int sd, bool* loggedIn);
 
 
 bool handleLogin(command* cmd, int sd);
@@ -208,7 +208,7 @@ void* handleClient(void* arg)
         {
             cout << "RAW: " << endl << buffer << endl;
             command recv_cmd = parseReceived(buffer, fd);
-            handleCommand(&recv_cmd, fd, loggedIn);
+            handleCommand(&recv_cmd, fd, &loggedIn);
         }
         
     }
@@ -351,16 +351,16 @@ command parseReceived(char* msg, int sd){
 }
 
 
-bool handleCommand(command* cmd, int sd, bool loggedIn){
+bool handleCommand(command* cmd, int sd, bool* loggedIn){
     if(cmd->valid){
-        if(!loggedIn)
+        if(!(*loggedIn))
         {
-            cout << "!list2" << loggedIn << endl;
+            cout << "!list2" << *loggedIn << endl;
             if(strcasecmp(cmd->cmd, "LOGIN") == 0){
                 int success = handleLogin(cmd, sd);
                 if(success > 0)
                 {
-                    loggedIn = true;
+                    *loggedIn = true;
                 }
                 return success;
             }
