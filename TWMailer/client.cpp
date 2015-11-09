@@ -127,6 +127,10 @@ int sendMail(int conSocket) {
     bool fileAttached=false;
     int fileSize=0;
 
+    memset(&to, '\0', sizeof(to));
+    memset(&subject, '\0', sizeof(subject));
+    memset(&message, '\0', sizeof(message));
+
     /* Veraltet
     printf("From: ");
     fgets(from, 9, stdin);
