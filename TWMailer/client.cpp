@@ -16,6 +16,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <iostream>
+
+#include <fstream>
+
 #define BUF 1024
 
 int handleInput(char* input);
@@ -26,9 +30,16 @@ int delMail(int conSocket);
 int login(int conSocket);
 int logout();
 int sendAttachment(int conSocket, char *filePath);
+int downloadfile(int conSocket);
+char* recvFile(int fileBytes, int sd);
+bool saveAttachment(char* attach, int bytes, char* filename, char* user);
+void createDirectory(const char* dir);
+bool isDirectoryPresent(const char* dir);
 
 bool loggedIn;
 char userLoggedIn[9];
+
+using namespace std;
 
 int main (int argc, char **argv) {
     int create_socket;
@@ -77,6 +88,7 @@ int main (int argc, char **argv) {
             case 4: delMail(create_socket); break;
             case 5: login(create_socket); break;
             case 6: logout(); break;
+            case 7: downloadfile(create_socket);
             default: printf("Unknown Command\n");
         }
     }
@@ -100,6 +112,8 @@ int handleInput(char* input) {
         return 5;
     else if (strcasecmp(input,"LOGOUT\n")==0)
         return 6;
+    else if (strcasecmp(input,"DOWNLOAD\n")==0)
+        return 7;
     else
         return 0;
 }
@@ -109,14 +123,9 @@ int sendMail(int conSocket) {
         printf("You must be logged in to use that command!\n");
         return 1;
     }
-    char /*from[9],*/ to[9], subject[81], message[901], msgBuffer[801], tmp[50], file[51], tmp2[50];
+    char /*from[9],*/ to[80], subject[81], message[901], msgBuffer[801], tmp[50], file[51], tmp2[50];
     bool fileAttached=false;
     int fileSize=0;
-    memset(to,0,sizeof(char)*9);
-    memset(subject,0,sizeof(char)*81);
-    memset(message,0,sizeof(char)*901);
-    memset(msgBuffer,0,sizeof(char)*901);
-    memset(tmp,0,sizeof(char)*50);
 
     /* Veraltet
     printf("From: ");
@@ -448,4 +457,110 @@ int sendAttachment(int conSocket, char *filePath) {
     }
     fclose(fd);
     return 1;
+}
+
+int downloadfile(int conSocket) {
+    char fName[20], buffer[BUF];
+    fgets(fName, 19, stdin);
+
+    strcpy(buffer, "DOWNLOAD\n");
+    strcat(buffer, userLoggedIn);
+    strcat(buffer, strtok(fName, "\n"));
+
+    send(conSocket, buffer, strlen(buffer), 0);
+
+    memset(&buffer, '\0', BUF);
+
+    recv(conSocket, buffer, BUF-1, 0);
+    if (strcasecmp(buffer, "OK\n")!=0)
+        return 0;
+    char *fileName=strtok(buffer, " ");
+    int fileSize=atoi(strtok(NULL, " "));
+    send(conSocket, "OK\n", BUF-1, 0);
+    char *fileBytes=recvFile(fileSize, conSocket);
+
+    if (saveAttachment(fileBytes, fileSize, fileName, userLoggedIn))
+        return 1;
+    return 0;
+}
+
+char* recvFile(int fileBytes, int sd) {
+    char* file = (char*) calloc(BUF, sizeof(char));
+
+    char buffer[1024];
+    int remainingBytes = fileBytes;
+
+    while (remainingBytes > 0) {
+
+        memset(&buffer, '\0', sizeof(buffer));
+        ssize_t recv_len = recv(sd, &buffer, 1024-1, 0);
+        buffer[1024-1] = '\0';
+
+        if(recv_len == -1){
+            perror("recv error");
+            strcpy(file, "");
+            return file;
+        }
+        else if (recv_len == 0)//close by client
+        {
+            cout << "Connection closed by Client" << endl << "Still listening for Connections..." << endl;
+            close(sd);
+            strcpy(file, "");
+            return file;
+        }
+        else
+        {
+            strcat(file, buffer);
+            remainingBytes -= recv_len;
+        }
+
+    }
+    return file;
+}
+
+bool saveAttachment(char* attach, int bytes, char* filename, char* user) {
+
+    char path[50];
+    memset(path, '\0', sizeof(char)*50);
+
+    createDirectory("recieved");
+
+    strcpy(path, "./recieved/");
+    strcpy(path, filename);
+
+
+    FILE* attachedFile = fopen(path, "w");
+    if (attachedFile == NULL)
+    {
+        printf("Failed to save attachment...\n");
+        return false;
+    }
+    else
+    {
+        printf("opened attachment successfully\n");
+
+        fwrite(attach, sizeof(char), bytes, attachedFile);
+        printf("finished writing\n");
+    }
+
+    fclose(attachedFile);
+    return true;
+}
+
+void createDirectory(const char* dir) {
+    if(!isDirectoryPresent(dir))
+    {
+        mkdir(dir, 0700);
+    }
+}
+
+bool isDirectoryPresent(const char* dir) {
+    struct stat st = {0};
+
+    if (stat(dir, &st) == -1) {
+        cout << "dir is NOT present; path=" << dir << endl;
+        return false;
+    }
+    cout << "dir is present; path=" << dir << endl;
+    return true;
 }
