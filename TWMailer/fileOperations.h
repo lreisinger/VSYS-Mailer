@@ -13,7 +13,6 @@
 #include <dirent.h>
 #include <vector>
 
-#endif /* defined(__TWMailer__fileOperations__) */
 
 
 const char* mailspool;
@@ -30,3 +29,6 @@ bool getMailSubject(char* path, char* subject_out);
 
 bool getMailMessage(char* username, int fileNr, char* msg_out);
 bool deleteMail(char* username, int fileNr);
+
+
+#endif /* defined(__TWMailer__fileOperations__) */
