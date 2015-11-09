@@ -207,9 +207,9 @@ int sendMail(int conSocket) {
     strcat(buffer, ".\n");
     if (fileAttached) {
         printf("File anhängen\n");
-        strcat(buffer, strtok(tmp2,"\n"));
-        strcat(buffer, " ");
         strcat(buffer, tmp);
+        strcat(buffer, " ");
+        strcat(buffer, strtok(tmp2,"\n"));
     }
 
 
