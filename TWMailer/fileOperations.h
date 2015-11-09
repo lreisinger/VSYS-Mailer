@@ -15,6 +15,7 @@
 
 extern const char* mailspool;
 
+bool getAttachmentData(char* user, char* filename, char* data_out, int lenght_out);
 bool saveAttachment(char* attach, int bytes, char* filename, char* user);
 
 bool saveMessage(char* empfaenger, char* sender, char* betreff, char* nachricht);

@@ -19,6 +19,8 @@
 
 #include <vector>
 
+#define MAXFILESIZE 1024
+
 using namespace std;
 
 bool saveMessage(char* empfaenger, char* sender, char* betreff, char* nachricht){
@@ -86,31 +88,24 @@ bool saveAttachment(char* attach, int bytes, char* filename, char* user){
     return true;
 }
 
-bool getAttachmentData(char* user, char* filename, char* out){
+bool getAttachmentData(char* user, char* filename, char* data_out, int lenght_out){
     
-    char line[81];
     char path[50];
     memset(path, '\0', sizeof(char)*50);
-    memset(line, '\0', sizeof(char)*81);
+    getUserpath(user, path);
+    strcat(path, "Attachments/");
+    strcat(path, filename);
     
-    FILE *fp = fopen(get,"r");
+    
+    FILE *fp = fopen(path,"r");
     if( fp == NULL )
     {
         perror("Error while opening the file.\n");
         perror(path);
         return false;
     }
+    lenght_out = fread(data_out,MAXFILESIZE, 1, fp);
     
-    int i = 0;
-    while(fgets(line,80, fp)!=NULL){
-        if(i == 1)
-        {
-            strcpy(subject_out, strtok (line,"\n"));// \n wegsplitten
-            cout << "dev subj: " << subject_out << endl << "dev line" << line << endl;
-            break;
-        }
-        i++;
-    }
     fclose(fp);
     return true;
 

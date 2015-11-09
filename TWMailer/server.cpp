@@ -80,6 +80,7 @@ bool handleLogout(command* cmd, int sd);
 bool handleSend(command* cmd, int sd);
 bool handleList(command* cmd, int sd);
 bool handleRead(command* cmd, int sd);
+bool handleDownload(command* cmd, int sd);
 bool handleDel(command* cmd, int sd);
 
 //replies:
@@ -470,14 +471,29 @@ bool handleRead(command* cmd, int sd){
 
 
 bool handleDownload(command* cmd, int sd){
+    char buffer[BUF];
+    char file[MAXFILESIZE];
     char reply[BUF];
+    int length;
+    char length_s[20];
+    char* filename = cmd->betreff;
     
     memset(reply, '\0', sizeof(char)*BUF);
-    bool success = getAttachmentData(cmd->username, cmd->betreff, reply);
+    bool success = getAttachmentData(cmd->username, filename, file, length);
+    
+    strcpy(reply, filename);
+    strcat(reply, " ");
+    
+    sprintf(length_s, "%d", length);
+    strcat(reply, length_s);
+    
+    sendReplyText(reply, sd);
+    //send lenght
+    recv(sd, &buffer, 80, 0);
     
     if(success)
     {
-        sendReplyText(reply, sd);
+        sendReplyText(file, sd);
     }
     else
     {
