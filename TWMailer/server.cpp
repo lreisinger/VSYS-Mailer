@@ -227,10 +227,8 @@ command parseReceived(char* msg, int sd){
 
     int i = 0;
 
-    bool attachment = false;
     char filename[50];
     int filesize;
-    char filebytes[MAXFILESIZE];
     
     bool finished = false;
     char* tmp = strtok (msg,"\n");
