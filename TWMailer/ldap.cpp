@@ -44,7 +44,6 @@ int login(char* user, char* pass)//1 = success, 0 = wrong pass, -1 = wrong user,
     
     
     LDAPMessage *result, *e;	/* LDAP result handle */
-    BerElement *ber;		/* array of attributes */
     char *attribute;
     char **vals;
     
@@ -104,40 +103,9 @@ int login(char* user, char* pass)//1 = success, 0 = wrong pass, -1 = wrong user,
     bool found = false;
     for (e = ldap_first_entry(ld, result); e != NULL; e = ldap_next_entry(ld,e))
     {
-        printf("DN: %s\n", ldap_get_dn(ld,e));
-        
-        /* Now print the attributes and values of each found entry */
-        
-        for (attribute = ldap_first_attribute(ld,e,&ber); attribute!=NULL; attribute = ldap_next_attribute(ld,e,ber))
-        {
-            if ((vals=ldap_get_values(ld,e,attribute)) != NULL)
-            {
-                for (int i=0;vals[i]!=NULL;i++)
-                {
-                    printf("%s: '%s'\n",attribute,vals[i]);
-                    if(strcmp(attribute, "DN")){
-                        strcpy(bind_dn, vals[i]);
-                        found = true;
-                    }
-                    if(found)
-                        break;
-                }
-                /* free memory used to store the values of the attribute */
-                ldap_value_free(vals);
-            }
-            /* free memory used to store the attribute */
-            ldap_memfree(attribute);
-            
-            if(found)
-                break;
-        }
-        /* free memory used to store the value structure */
-        if (ber != NULL) ber_free(ber,0);
-        
-        printf("\n");
-        
-        if(found)
-            break;
+        strcpy(bind_dn, ldap_get_dn(ld,e));
+        printf("DN: '%s'\n", bind_dn);
+        found = true;
     }
     
     /* free memory used for result */
