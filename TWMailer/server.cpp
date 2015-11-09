@@ -36,6 +36,8 @@
 using namespace std;
 
 
+const char* mailspool;
+
 struct command {
     char cmd[5];
     //SEND
