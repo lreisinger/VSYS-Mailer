@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		808C28B41BEA6EAC001DD815 /* ldap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 808C28B21BEA6EAC001DD815 /* ldap.cpp */; };
 		80B86DAE1BD4DDD100E0C129 /* fileOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80B86DAD1BD4DDD100E0C129 /* fileOperations.cpp */; };
-		80D503AA1BC6DDC400E7E5D8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80D503A91BC6DDC400E7E5D8 /* main.cpp */; };
+		80D503AA1BC6DDC400E7E5D8 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80D503A91BC6DDC400E7E5D8 /* server.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,7 +30,7 @@
 		808C28B31BEA6EAC001DD815 /* ldap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ldap.h; sourceTree = "<group>"; };
 		80B86DAD1BD4DDD100E0C129 /* fileOperations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fileOperations.cpp; sourceTree = "<group>"; };
 		80D503A61BC6DDC400E7E5D8 /* TWMailer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TWMailer; sourceTree = BUILT_PRODUCTS_DIR; };
-		80D503A91BC6DDC400E7E5D8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		80D503A91BC6DDC400E7E5D8 /* server.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = server.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,7 +63,7 @@
 		80D503A81BC6DDC400E7E5D8 /* TWMailer */ = {
 			isa = PBXGroup;
 			children = (
-				80D503A91BC6DDC400E7E5D8 /* main.cpp */,
+				80D503A91BC6DDC400E7E5D8 /* server.cpp */,
 				808C28B21BEA6EAC001DD815 /* ldap.cpp */,
 				808C28B31BEA6EAC001DD815 /* ldap.h */,
 				80B86DAD1BD4DDD100E0C129 /* fileOperations.cpp */,
@@ -128,7 +128,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				80D503AA1BC6DDC400E7E5D8 /* main.cpp in Sources */,
+				80D503AA1BC6DDC400E7E5D8 /* server.cpp in Sources */,
 				80B86DAE1BD4DDD100E0C129 /* fileOperations.cpp in Sources */,
 				808C28B41BEA6EAC001DD815 /* ldap.cpp in Sources */,
 			);
