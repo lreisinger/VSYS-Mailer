@@ -68,7 +68,7 @@ void* handleClient(void* arg);
 
 ssize_t sendmsg(int sd, char* text);
 command parseReceived(char* msg);
-bool handleCommand(command* cmd, int sd);
+bool handleCommand(command* cmd, int sd, bool loggedIn);
 
 
 bool handleLogin(command* cmd, int sd);
@@ -163,6 +163,7 @@ int main(int argc, const char * argv[]) {
 
 void* handleClient(void* arg)
 {
+    bool loggedIn = false;
     ThreadData* data = (ThreadData*)arg;
     int fd = data->fd;
     
@@ -199,7 +200,7 @@ void* handleClient(void* arg)
         {
             cout << "RAW: " << endl << buffer << endl;
             command recv_cmd = parseReceived(buffer);
-            handleCommand(&recv_cmd, fd);
+            handleCommand(&recv_cmd, fd, loggedIn);
         }
         
     }
@@ -302,13 +303,17 @@ command parseReceived(char* msg){
 }
 
 
-bool handleCommand(command* cmd, int sd){
+bool handleCommand(command* cmd, int sd, bool loggedIn){
     if(cmd->valid){
-        bool loggedIn = false;
         if(!loggedIn)
         {
             if(strcasecmp(cmd->cmd, "LOGIN") == 0){
-                return handleLogin(cmd, sd);
+                int success = handleLogin(cmd, sd);
+                if(success)
+                {
+                    loggedIn = true;
+                }
+                return success;
             }
             else
             {
