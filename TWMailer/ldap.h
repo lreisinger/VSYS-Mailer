@@ -10,6 +10,7 @@
 #define __TWMailer__ldap__
 
 #include <stdio.h>
+#include <vector>
 
 std::vector<struct user_ldap*>* loggedIn = new std::vector<struct user_ldap*>();
 
