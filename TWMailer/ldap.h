@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <vector>
 
-std::vector<struct user_ldap*>* loggedIn = new std::vector<struct user_ldap*>();
+extern std::vector<struct user_ldap*>* loggedIn;
 
 struct user_ldap {
     int sd;

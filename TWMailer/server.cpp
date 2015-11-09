@@ -65,6 +65,9 @@ struct ThreadData
     }
 };
 
+std::vector<struct user_ldap*>* loggedIn;
+
+char* getIPfromSd(int sd);
 
 void* handleClient(void* arg);
 
@@ -412,10 +415,31 @@ bool handleLogin(command* cmd, int sd){
     if(success)
     {
         struct user_ldap* newuser = (struct user_ldap*)calloc(1, sizeof(user_ldap));
+        strcpy(newuser->username, cmd->username);
+        newuser->sd = sd;
+        newuser->retries = 0;
+        strcpy(newuser->ip, getIPfromSd(sd));
+        
         loggedIn->push_back(newuser);
+    }
+    else if(returnvalue > -2 && returnvalue < 1)//fehlerhafter user oder pw
+    {
+        //ipban nach 3x
     }
     sendReplySuccess(success, sd);
     return success;
+}
+
+char* getIPfromSd(int sd){
+    char* ret = (char*) calloc (16, sizeof(char));
+    struct sockaddr_in addr;
+    socklen_t addr_len = sizeof(addr);
+    int err = getpeername(sd, (struct sockaddr *) &addr, &addr_len);
+    if (err != 0) {
+        return ret;
+    }
+    inet_ntop(AF_INET, &addr.sin_addr, ret, sizeof(char)*16);
+    return ret;
 }
 
 bool handleLogout(command* cmd, int sd){
@@ -474,11 +498,13 @@ bool handleDownload(command* cmd, int sd){
     char buffer[BUF];
     char file[MAXFILESIZE];
     char reply[BUF];
-    int length;
+    int length = 0;
     char length_s[20];
     char* filename = cmd->betreff;
     
     memset(reply, '\0', sizeof(char)*BUF);
+    memset(buffer, '\0', sizeof(char)*BUF);
+    memset(file, '\0', sizeof(char)*MAXFILESIZE);
     bool success = getAttachmentData(cmd->username, filename, file, length);
     
     strcpy(reply, filename);
