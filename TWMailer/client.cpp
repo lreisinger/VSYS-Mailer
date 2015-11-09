@@ -8,6 +8,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -108,8 +109,9 @@ int sendMail(int conSocket) {
         printf("You must be logged in to use that command!\n");
         return 1;
     }
-    char /*from[9],*/ to[9], subject[81], message[901], msgBuffer[801], tmp[50], file[51], tmp2[50];;
+    char /*from[9],*/ to[9], subject[81], message[901], msgBuffer[801], tmp[50], file[51], tmp2[50];
     bool fileAttached=false;
+    int fileSize=0;
     memset(to,0,sizeof(char)*9);
     memset(subject,0,sizeof(char)*81);
     memset(message,0,sizeof(char)*901);
@@ -172,6 +174,22 @@ int sendMail(int conSocket) {
             //printf("%s\n",tmp);
         }
         //printf("end do\n");
+
+        memset(&tmp, '\0', 50);
+
+        struct stat st;
+
+        if (stat(file, &st) == -1) {
+            printf("Could not find file %s, sending message without attachment...\n", file);
+            return 0;
+        }
+        else {
+            printf("File found. File size is: %d\n", (int) st.st_size);
+            fileSize=(int) st.st_size;
+        }
+
+        sprintf(tmp,"%d",fileSize);
+
     }
 
     printf("Bool: %d\n",fileAttached);
@@ -189,7 +207,9 @@ int sendMail(int conSocket) {
     strcat(buffer, ".\n");
     if (fileAttached) {
         printf("File anhängen\n");
-        strcat(buffer, tmp2);
+        strcat(buffer, strtok(tmp2,"\n"));
+        strcat(buffer, " ");
+        strcat(buffer, tmp);
     }
 
 
@@ -202,6 +222,8 @@ int sendMail(int conSocket) {
     if (fileAttached) {
         if (strcasecmp(buffer,"OK\n")==0) {
             sendAttachment(conSocket, file);
+
+            recv(conSocket,buffer,BUF-1, 0);
         }
         else {
             printf("Your message could not be sent!\n");
