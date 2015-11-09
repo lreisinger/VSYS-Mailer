@@ -314,7 +314,7 @@ bool handleCommand(command* cmd, int sd, bool loggedIn){
         {
             if(strcasecmp(cmd->cmd, "LOGIN") == 0){
                 int success = handleLogin(cmd, sd);
-                if(success)
+                if(success > 0)
                 {
                     loggedIn = true;
                 }

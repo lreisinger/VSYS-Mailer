@@ -90,7 +90,7 @@ int login(char* user, char* pass)//1 = success, 0 = wrong pass, -1 = wrong user,
     strcat(filter, user);
     strcat(filter, ")");
     
-    rc = ldap_search_s(ld, SEARCHBASE, SCOPE, filter, attribs, 0, &result);
+    rc = ldap_search_s(ld, SEARCHBASE, SCOPE, filter, NULL, 0, &result);
     
     if (rc != LDAP_SUCCESS)
     {
