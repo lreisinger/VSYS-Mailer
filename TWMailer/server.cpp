@@ -256,7 +256,12 @@ command parseReceived(char* msg){
 
         i++;
         tmp = strtok (NULL, "\n");
+        
+        if(finished && tmp != NULL){
+            //filename
+        }
     }
+    
 
     if(strcasecmp(new_cmd.cmd, "SEND") == 0){
         if(i>3){//mind. 4zeilen

@@ -78,8 +78,6 @@ int login(char* user, char* pass)//1 = success, 0 = wrong pass, -1 = wrong user,
     
     
     char bind_dn[100];
-    sprintf( bind_dn, "cn=%s,ou=People,dc=nafiux,dc=com", user );
-    printf( "Connecting as %s...\n", bind_dn );
     
     char *attribs[3];		/* attribute array for search */
     
@@ -116,8 +114,8 @@ int login(char* user, char* pass)//1 = success, 0 = wrong pass, -1 = wrong user,
             {
                 for (int i=0;vals[i]!=NULL;i++)
                 {
-                    printf("%s: %s\n",attribute,vals[i]);
-                    if(strcmp(attribute, "dn")){
+                    printf("%s: '%s'\n",attribute,vals[i]);
+                    if(strcmp(attribute, "DN")){
                         strcpy(bind_dn, vals[i]);
                         found = true;
                     }
