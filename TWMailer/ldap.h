@@ -11,6 +11,8 @@
 
 #include <stdio.h>
 
+std::vector<struct user_ldap*>* loggedIn = new std::vector<struct user_ldap*>();
+
 struct user_ldap {
     int sd;
     char username[9];

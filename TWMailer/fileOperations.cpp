@@ -21,29 +21,101 @@
 
 using namespace std;
 
-
 bool saveMessage(char* empfaenger, char* sender, char* betreff, char* nachricht){
-
-    char path[30];
-    getUserpath(empfaenger, path);
-
-    createDirectory(mailspool);
-    createDirectory(path);
-
-
-    char fileNamePath[30];
-    memset(fileNamePath, '\0', sizeof(char)*30);
-    getNextFileNamePath(path, fileNamePath);
-
-    ofstream myfile;
-    myfile.open (fileNamePath);
-    if (myfile.fail()) {
-        return false;
+    
+    char* singleEmpfaenger = strtok (empfaenger,",");
+    while (singleEmpfaenger != NULL)
+    {
+        
+        char path[30];
+        getUserpath(singleEmpfaenger, path);
+        
+        createDirectory(mailspool);
+        createDirectory(path);
+        
+        
+        char fileNamePath[30];
+        memset(fileNamePath, '\0', sizeof(char)*30);
+        getNextFileNamePath(path, fileNamePath);
+        
+        ofstream myfile;
+        myfile.open (fileNamePath);
+        if (myfile.fail()) {
+            return false;
+        }
+        myfile << sender << endl << betreff << endl << nachricht << endl;
+        myfile.close();
+        
+        
+        singleEmpfaenger = strtok (NULL, ",");
     }
-    myfile << sender << endl << betreff << endl << nachricht << endl;
-    myfile.close();
     return true;
 }
+
+
+bool saveAttachment(char* attach, int bytes, char* filename, char* user){
+    
+    char path[50];
+    memset(path, '\0', sizeof(char)*50);
+    getUserpath(user, path);
+    
+    createDirectory(mailspool);
+    createDirectory(path);
+    
+    strcat(path, "Attachments/");
+    createDirectory(path);
+    
+    strcpy(path, filename);
+    
+    
+    FILE* attachedFile = fopen(path, "w");
+    if (attachedFile == NULL)
+    {
+        printf("Failed to save attachment...\n");
+        return false;
+    }
+    else
+    {
+        printf("opened attachment successfully\n");
+        
+        fwrite(attach, sizeof(char), bytes, attachedFile);
+        printf("finished writing\n");
+    }
+    
+    fclose(attachedFile);
+    return true;
+}
+
+bool getAttachmentData(char* user, char* filename, char* out){
+    
+    char line[81];
+    char path[50];
+    memset(path, '\0', sizeof(char)*50);
+    memset(line, '\0', sizeof(char)*81);
+    
+    FILE *fp = fopen(get,"r");
+    if( fp == NULL )
+    {
+        perror("Error while opening the file.\n");
+        perror(path);
+        return false;
+    }
+    
+    int i = 0;
+    while(fgets(line,80, fp)!=NULL){
+        if(i == 1)
+        {
+            strcpy(subject_out, strtok (line,"\n"));// \n wegsplitten
+            cout << "dev subj: " << subject_out << endl << "dev line" << line << endl;
+            break;
+        }
+        i++;
+    }
+    fclose(fp);
+    return true;
+
+}
+
 
 void listMessages(char* username, vector<char*>* subjects)
 {

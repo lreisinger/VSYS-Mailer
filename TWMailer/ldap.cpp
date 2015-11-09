@@ -42,12 +42,7 @@ int login(char* user, char* pass)//1 = success, 0 = wrong pass, -1 = wrong user,
     LDAP *ld;
     int rc = 0;
     
-    
     LDAPMessage *result, *e;	/* LDAP result handle */
-    char *attribute;
-    char **vals;
-    
-    
     
     /* Open LDAP Connection */
     if ((ld=ldap_init(LDAP_HOST, LDAP_PORT)) == NULL)
@@ -100,13 +95,11 @@ int login(char* user, char* pass)//1 = success, 0 = wrong pass, -1 = wrong user,
     
     printf("Total results: %d\n", ldap_count_entries(ld, result));
     
-    bool found = false;
     int i = 0;
     for (e = ldap_first_entry(ld, result); e != NULL; e = ldap_next_entry(ld,e))
     {
         strcpy(bind_dn, ldap_get_dn(ld,e));
         printf("DN: '%s'\n", bind_dn);
-        found = true;
         i++;
     }
     
@@ -122,11 +115,13 @@ int login(char* user, char* pass)//1 = success, 0 = wrong pass, -1 = wrong user,
         return -3;
     }
     
-    printf("LDAP search suceeded\n");
 
-    if(!found){
+    if(i < 1){
+        fprintf(stderr, "LDAP search error: User %s %s\n", user, "not found!" );
         return -1;
     }
+    
+    printf("LDAP search suceeded\n");
 #pragma endregion step2
     
     

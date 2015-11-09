@@ -15,6 +15,8 @@
 
 extern const char* mailspool;
 
+bool saveAttachment(char* attach, int bytes, char* filename, char* user);
+
 bool saveMessage(char* empfaenger, char* sender, char* betreff, char* nachricht);
 void createDirectory(const char* dir);
 bool isDirectoryPresent(const char* dir);

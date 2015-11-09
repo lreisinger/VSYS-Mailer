@@ -32,6 +32,8 @@
 #define BUF 1024
 
 #define MAXCLIENTS 100
+#define MAXRECEIVERS 100
+#define MAXFILESIZE 1024
 
 using namespace std;
 
@@ -42,7 +44,7 @@ struct command {
     char cmd[5];
     //SEND
     char sender[9];
-    char empfaenger[9];
+    char empfaenger[9*MAXRECEIVERS];//aaaaaaa,bbbbbbb,ccccccc\n
     char betreff[81];
     char message[918];
     //LIST
@@ -66,8 +68,10 @@ struct ThreadData
 
 void* handleClient(void* arg);
 
+char* recvFile(int fileBytes, int sd);
+
 ssize_t sendmsg(int sd, char* text);
-command parseReceived(char* msg);
+command parseReceived(char* msg, int sd);
 bool handleCommand(command* cmd, int sd, bool loggedIn);
 
 
@@ -199,7 +203,7 @@ void* handleClient(void* arg)
         else
         {
             cout << "RAW: " << endl << buffer << endl;
-            command recv_cmd = parseReceived(buffer);
+            command recv_cmd = parseReceived(buffer, fd);
             handleCommand(&recv_cmd, fd, loggedIn);
         }
         
@@ -209,7 +213,7 @@ void* handleClient(void* arg)
 }
 
 
-command parseReceived(char* msg){
+command parseReceived(char* msg, int sd){
     command new_cmd = {};
     new_cmd.valid = true;
 
@@ -219,7 +223,11 @@ command parseReceived(char* msg){
 
     int i = 0;
 
-
+    bool attachment = false;
+    char filename[50];
+    int filesize;
+    char filebytes[MAXFILESIZE];
+    
     bool finished = false;
     char* tmp = strtok (msg,"\n");
     strcpy(new_cmd.cmd, tmp);
@@ -257,9 +265,6 @@ command parseReceived(char* msg){
         i++;
         tmp = strtok (NULL, "\n");
         
-        if(finished && tmp != NULL){
-            //filename
-        }
     }
     
 
@@ -269,6 +274,31 @@ command parseReceived(char* msg){
             strcpy(new_cmd.empfaenger, fields[1]);
             strcpy(new_cmd.betreff, fields[2]);
             strcpy(new_cmd.message, fields[3]);
+            
+            if(finished && tmp != NULL){
+                
+                char* tmp2 = strtok (tmp," ");//filesize
+                filesize = atoi(tmp2);
+                
+                tmp2 = strtok (NULL," ");//filename
+                strcpy(filename, tmp2);
+                
+                
+                sendReplySuccess(true, sd);//damit client dann loschickt
+                
+                char* filebytes = recvFile(filesize, sd);
+                
+                bool success = saveAttachment(filebytes, filesize, filename, new_cmd.empfaenger);
+                
+                if(success){
+                    strcat(new_cmd.message, "\n\nAttached file: ");
+                    strcat(new_cmd.message, filename);
+                }
+                sendReplySuccess(success, sd);//??
+                
+                
+            }
+
         }
         else
         {
@@ -288,6 +318,16 @@ command parseReceived(char* msg){
         if(i>1){
             strcpy(new_cmd.username, fields[0]);
             new_cmd.msgNr = stoi(fields[1]);
+        }
+        else
+        {
+            new_cmd.valid = false;
+        }
+    }
+    else if(strcasecmp(new_cmd.cmd, "DOWNLOAD") == 0){
+        if(i>0){
+            strcpy(new_cmd.username, fields[0]);//betreff als filename
+            strcpy(new_cmd.betreff, fields[1]);//betreff als filename
         }
         else
         {
@@ -336,6 +376,9 @@ bool handleCommand(command* cmd, int sd, bool loggedIn){
             else if(strcasecmp(cmd->cmd, "READ") == 0){
                 return handleRead(cmd, sd);
             }
+            else if(strcasecmp(cmd->cmd, "DOWNLOAD") == 0){
+                return handleDownload(cmd, sd);
+            }
             else if(strcasecmp(cmd->cmd, "DEL") == 0){
                 return handleDel(cmd, sd);
             }
@@ -365,14 +408,18 @@ bool handleSend(command* cmd, int sd){
 bool handleLogin(command* cmd, int sd){
     int returnvalue = login(cmd->username, cmd->password);
     bool success = (returnvalue > 0) ? true : false;
+    if(success)
+    {
+        struct user_ldap* newuser = (struct user_ldap*)calloc(1, sizeof(user_ldap));
+        loggedIn->push_back(newuser);
+    }
     sendReplySuccess(success, sd);
     return success;
 }
 
 bool handleLogout(command* cmd, int sd){
-    //bool success = login(cmd->username, cmd->password);
-    //sendReplySuccess(success, sd);
-    //return success;
+
+    
     return true;
 }
 
@@ -420,6 +467,27 @@ bool handleRead(command* cmd, int sd){
     return success;
 }
 
+
+
+bool handleDownload(command* cmd, int sd){
+    char reply[BUF];
+    
+    memset(reply, '\0', sizeof(char)*BUF);
+    bool success = getAttachmentData(cmd->username, cmd->betreff, reply);
+    
+    if(success)
+    {
+        sendReplyText(reply, sd);
+    }
+    else
+    {
+        strcpy(reply, "ERR\n");
+        sendReplyText(reply, sd);
+    }
+    return success;
+}
+
+
 bool handleDel(command* cmd, int sd){
 
     bool success = deleteMail(cmd->username, cmd->msgNr);
@@ -450,6 +518,40 @@ int sendReplyText(char* text, int sd){
     cout << "Sent " << buffer << endl;
 
     return (int)send(sd, buffer, strlen (buffer), 0);
+}
+
+char* recvFile(int fileBytes, int sd){
+    char* file = (char*) calloc(MAXFILESIZE, sizeof(char));
+    
+    char buffer[1024];
+    int remainingBytes = fileBytes;
+    
+    while (remainingBytes > 0) {
+        
+        memset(&buffer, '\0', sizeof(buffer));
+        ssize_t recv_len = recv(sd, &buffer, 1024-1, 0);
+        buffer[1024-1] = '\0';
+        
+        if(recv_len == -1){
+            perror("recv error");
+            strcpy(file, "");
+            return file;
+        }
+        else if (recv_len == 0)//close by client
+        {
+            cout << "Connection closed by Client" << endl << "Still listening for Connections..." << endl;
+            close(sd);
+            strcpy(file, "");
+            return file;
+        }
+        else
+        {
+            strcat(file, buffer);
+            remainingBytes -= recv_len;
+        }
+        
+    }
+    return file;
 }
 
 
