@@ -116,7 +116,7 @@ int login(char* user, char* pass)//1 = success, 0 = wrong pass, -1 = wrong user,
             {
                 for (int i=0;vals[i]!=NULL;i++)
                 {
-                    printf("\t%s: %s\n",attribute,vals[i]);
+                    printf("%s: %s\n",attribute,vals[i]);
                     if(strcmp(attribute, "dn")){
                         strcpy(bind_dn, vals[i]);
                         found = true;
