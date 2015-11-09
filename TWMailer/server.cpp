@@ -355,6 +355,7 @@ bool handleCommand(command* cmd, int sd, bool loggedIn){
     if(cmd->valid){
         if(!loggedIn)
         {
+            cout << "!list2" << loggedIn << endl;
             if(strcasecmp(cmd->cmd, "LOGIN") == 0){
                 int success = handleLogin(cmd, sd);
                 if(success > 0)
@@ -375,7 +376,7 @@ bool handleCommand(command* cmd, int sd, bool loggedIn){
             }
             else if(strcasecmp(cmd->cmd, "LIST") == 0){
                 
-                cout << "list2" << endl;
+                cout << "list2" << loggedIn << endl;
                 return handleList(cmd, sd);
             }
             else if(strcasecmp(cmd->cmd, "READ") == 0){
@@ -452,7 +453,6 @@ bool handleLogout(command* cmd, int sd){
 
 bool handleList(command* cmd, int sd){
     
-    cout << "list3" << endl;
     vector<char*> subjects;
     char subj_count[4], reply[BUF];
     
