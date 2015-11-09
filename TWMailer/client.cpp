@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 #define BUF 1024
 
 int handleInput(char* input);
@@ -23,6 +24,7 @@ int readMail(int conSocket);
 int delMail(int conSocket);
 int login(int conSocket);
 int logout();
+int sendAttachment(int conSocket, char *filePath);
 
 bool loggedIn;
 char userLoggedIn[9];
@@ -106,7 +108,8 @@ int sendMail(int conSocket) {
         printf("You must be logged in to use that command!\n");
         return 1;
     }
-    char /*from[9],*/ to[9], subject[81], message[901], msgBuffer[901], tmp[50];
+    char /*from[9],*/ to[9], subject[81], message[901], msgBuffer[801], tmp[50], file[51], tmp2[50];;
+    bool fileAttached=false;
     memset(to,0,sizeof(char)*9);
     memset(subject,0,sizeof(char)*81);
     memset(message,0,sizeof(char)*901);
@@ -134,7 +137,7 @@ int sendMail(int conSocket) {
 
     printf("Message: ");
     while (1) {
-        fgets(msgBuffer, 901, stdin);
+        fgets(msgBuffer, 800, stdin);
         if (strcmp(msgBuffer,".\n")==0)
             break;
         strcat(message,msgBuffer);
@@ -145,6 +148,33 @@ int sendMail(int conSocket) {
 
     //printf("MEssageALL: %s\n", message);
     //Protokoll bauen
+
+    memset(&tmp, '\0', 50);
+    printf("Attach file? (y/n): ");
+    fgets(tmp, 3, stdin);
+    if (strcasecmp(strtok(tmp,"\n"),"y")==0) {
+        //printf("File attaching");
+        fileAttached=true;
+        printf("Path: ");
+        fgets(file, 50, stdin);
+
+        //Filename holen
+        //printf("strcpy\n");
+        char *ptr;
+        ptr=strtok(file,"/");
+        //printf("%s\n",tmp);
+        while (ptr!=NULL) {
+            strcpy(tmp,ptr);
+            //printf("do\n");
+            strcpy(tmp2,tmp);
+            ptr=strtok(NULL, "/");
+
+            //printf("%s\n",tmp);
+        }
+        //printf("end do\n");
+    }
+
+    printf("Bool: %d\n",fileAttached);
 
     char buffer[BUF]={'\0'};
 
@@ -157,12 +187,27 @@ int sendMail(int conSocket) {
     //strcat(buffer, "\n");
     strcat(buffer, message);
     strcat(buffer, ".\n");
+    if (fileAttached) {
+        printf("File anhängen\n");
+        strcat(buffer, tmp2);
+    }
+
 
     send(conSocket, buffer, strlen(buffer), 0);
 
     memset(&buffer, '\0', strlen(buffer));
 
     recv(conSocket,buffer,BUF-1, 0);
+
+    if (fileAttached) {
+        if (strcasecmp(buffer,"OK\n")==0) {
+            sendAttachment(conSocket, file);
+        }
+        else {
+            printf("Your message could not be sent!\n");
+            return 0;
+        }
+    }
 
     printf("Recieved: %s",buffer);
 
@@ -340,4 +385,45 @@ int logout() {
     memset(&userLoggedIn, '\0', strlen(userLoggedIn));
     printf("Logged out!\n");
     return 0;
+}
+
+int sendAttachment(int conSocket, char *filePath) {
+    FILE* fd = fopen (filePath, "r");
+
+    if (fd == NULL) {
+        printf("Error while opening\n");
+        send(conSocket, "ERR\n", sizeof("ERR\n"), 0);
+        return 0;
+    }
+    else {
+        char buffer[BUF];
+        while (1) {
+            int bytesRead = fread(buffer, 1, BUF, fd);
+
+            printf("read %d bytes.\n", bytesRead);
+
+            if (bytesRead == 0)
+                break;
+
+            if (bytesRead < 0) {
+                printf("error: %s\n", strerror(errno));
+                return 0;
+            }
+
+
+            char *p = buffer;
+            while (bytesRead > 0) {
+                int bytesSent = write(conSocket, p, bytesRead);
+                if (bytesSent <= 0) {
+                    printf("error: %s\n", strerror(errno));
+                    return 0;
+                }
+                bytesRead -= bytesSent;
+                p+= bytesSent;
+            }
+
+        }
+    }
+    fclose(fd);
+    return 1;
 }
