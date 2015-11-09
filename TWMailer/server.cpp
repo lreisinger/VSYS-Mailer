@@ -412,10 +412,11 @@ bool handleLogin(command* cmd, int sd){
     bool success = (returnvalue > 0) ? true : false;
     if(success)
     {
-        struct user_ldap* newuser = (struct user_ldap*)malloc(sizeof(user_ldap));
+        struct user_ldap* newuser = (struct user_ldap*)malloc(sizeof(struct user_ldap));
         strcpy(newuser->username, cmd->username);
         newuser->sd = sd;
         newuser->retries = 0;
+        newuser->timestamp_lasttry = (int)time(0);
         strcpy(newuser->ip, getIPfromSd(sd));
         
         loggedIn->push_back(newuser);
