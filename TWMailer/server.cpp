@@ -77,10 +77,10 @@ char* recvFile(int fileBytes, int sd);
 
 ssize_t sendmsg(int sd, char* text);
 command parseReceived(char* msg, int sd);
-bool handleCommand(command* cmd, int sd, bool* loggedIn);
+bool handleCommand(command* cmd, int sd, bool* loggedIn, bool* banned);
 
 
-bool handleLogin(command* cmd, int sd);
+bool handleLogin(command* cmd, int sd, bool* banned);
 bool handleLogout(command* cmd, int sd);
 bool handleSend(command* cmd, int sd);
 bool handleList(command* cmd, int sd);
@@ -223,13 +223,14 @@ void* handleClient(void* arg)
         }
         else
         {
+            bool banned = false;
             cout << "RAW: " << endl << buffer << endl;
             command recv_cmd = parseReceived(buffer, fd);
-            handleCommand(&recv_cmd, fd, &loggedIn);
+            handleCommand(&recv_cmd, fd, &loggedIn, &banned);
             
-            /*if(read(fd, buffer, 255)==0){
+            if(banned){
                 return NULL;
-            }*/
+            }
         }
         
     }
@@ -373,12 +374,12 @@ command parseReceived(char* msg, int sd){
 }
 
 
-bool handleCommand(command* cmd, int sd, bool* loggedIn){
+bool handleCommand(command* cmd, int sd, bool* loggedIn, bool* banned){
     if(cmd->valid){
         if(!(*loggedIn))
         {
             if(strcasecmp(cmd->cmd, "LOGIN") == 0){
-                int success = handleLogin(cmd, sd);
+                int success = handleLogin(cmd, sd, banned);
                 if(success > 0)
                 {
                     *loggedIn = true;
@@ -431,7 +432,7 @@ bool handleSend(command* cmd, int sd){
     return success;
 }
 
-bool handleLogin(command* cmd, int sd){
+bool handleLogin(command* cmd, int sd, bool* banned){
     
     int returnvalue = login(cmd->username, cmd->password);
     bool success = (returnvalue > 0) ? true : false;
@@ -459,7 +460,9 @@ bool handleLogin(command* cmd, int sd){
             tmp->timestamp_lasttry = (int)time(0);
             
             if(tmp->retries > 2){
+                *banned = true;
                 close(tmp->sd);
+                
                 return false;
             }
         }
