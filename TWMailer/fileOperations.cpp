@@ -108,6 +108,8 @@ bool getAttachmentData(char* user, char* filename, char* data_out, int* lenght_o
     }
     *lenght_out = getFileSize(fp);
     
+    fread(data_out, 1, MAXFILESIZE, fp);
+    
     fclose(fp);
     return true;
 
