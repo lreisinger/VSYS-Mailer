@@ -35,6 +35,7 @@ char* recvFile(int fileBytes, int sd);
 bool saveAttachment(char* attach, int bytes, char* filename, char* user);
 void createDirectory(const char* dir);
 bool isDirectoryPresent(const char* dir);
+long get_size (FILE *file);
 
 bool loggedIn;
 char userLoggedIn[9];
@@ -123,9 +124,9 @@ int sendMail(int conSocket) {
         printf("You must be logged in to use that command!\n");
         return 1;
     }
-    char /*from[9],*/ to[80], subject[81], message[901], msgBuffer[801], tmp[50], file[51], tmp2[50];
+    char /*from[9],*/ to[80], subject[81], message[901], msgBuffer[801], tmp[50], file[51], file2[51], tmp2[50];
     bool fileAttached=false;
-    int fileSize=0;
+    long fileSize=0;
 
     memset(&to, '\0', sizeof(to));
     memset(&subject, '\0', sizeof(subject));
@@ -173,10 +174,13 @@ int sendMail(int conSocket) {
         printf("Path: ");
         fgets(file, 50, stdin);
 
+        printf("File1: %s\n", file);
+
         //Filename holen
         //printf("strcpy\n");
         char *ptr;
-        ptr=strtok(file,"/");
+        strcpy(file2, file);
+        ptr=strtok(file2,"/");
         //printf("%s\n",tmp);
         while (ptr!=NULL) {
             strcpy(tmp,ptr);
@@ -190,18 +194,22 @@ int sendMail(int conSocket) {
 
         memset(&tmp, '\0', 50);
 
-        struct stat st;
 
-        if (stat(file, &st) == -1) {
+        printf("File: %s\n",file);
+        FILE* fd = fopen(strtok(file, "\n"), "r");
+        if (fd==NULL) {printf("Error: %d (%s)\n", errno, strerror(errno)); return 0;}
+
+        fileSize=get_size(fd);
+
+        if (fileSize == -1) {
             printf("Could not find file %s, sending message without attachment...\n", file);
             return 0;
         }
         else {
-            printf("File found. File size is: %d\n", (int) st.st_size);
-            fileSize=(int) st.st_size;
+            printf("File found. File size is: %ld\n", fileSize);
         }
 
-        sprintf(tmp,"%d",fileSize);
+        sprintf(tmp,"%ld",fileSize);
 
     }
 
@@ -423,6 +431,7 @@ int logout() {
 }
 
 int sendAttachment(int conSocket, char *filePath) {
+
     FILE* fd = fopen (filePath, "r");
 
     if (fd == NULL) {
@@ -567,4 +576,15 @@ bool isDirectoryPresent(const char* dir) {
     }
     cout << "dir is present; path=" << dir << endl;
     return true;
+}
+
+long get_size (FILE *file) {
+    long pos=0;
+    long size=0;
+    pos=ftell(file);
+    rewind(file);
+    while (fgetc(file)!=EOF)
+        size++;
+    fseek (file,pos,SEEK_SET);
+    return size;
 }
