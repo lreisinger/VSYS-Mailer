@@ -468,6 +468,7 @@ struct user_ldap* getWrongLoginStructFromIP(char* ip){
         struct user_ldap* tmp = *it;
         cout << "getStruct " << ip << "=?" << tmp->ip << endl;
         if(strcmp(tmp->ip, ip)){
+            cout << "same" << endl;
             return tmp;
         }
     }
