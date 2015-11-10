@@ -167,6 +167,10 @@ int main(int argc, const char * argv[]) {
             if(tmp->retries > 2){
                 int diff = (int)time(0)-tmp->timestamp_lasttry;
                 if((diff%60) < BANMINUTES){
+                    
+                    char ban[6] = "BAN\n";
+                    sendReplyText(ban, conn_fd);
+
                     close(conn_fd);
                     continue;
                 }
