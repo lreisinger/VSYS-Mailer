@@ -606,7 +606,7 @@ int sendReplyText(char* text, int sd){
     memset(&buffer, '\0', sizeof(char)*BUF);
 
     strcpy(buffer, text);
-    cout << "Sent " << buffer << endl;
+    cout << "Sent '" << buffer << "'" <<endl;
 
     return (int)send(sd, buffer, strlen (buffer), 0);
 }
