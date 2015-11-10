@@ -489,8 +489,6 @@ int downloadfile(int conSocket) {
     memset(&buffer, '\0', BUF);
 
     recv(conSocket, buffer, BUF-1, 0);
-    if (strcasecmp(buffer, "OK\n")!=0)
-        return 0;
     char *fileName=strtok(buffer, " ");
     int fileSize=atoi(strtok(NULL, " "));
     send(conSocket, "OK\n", BUF-1, 0);
