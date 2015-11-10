@@ -362,7 +362,7 @@ bool saveBans(){
     
     for(std::vector<struct user_ldap*>::iterator it = wrong_logins.begin(); it != wrong_logins.end(); ++it) {
         struct user_ldap* tmp = *it;
-        if(tmp->retries > 3){
+        if(tmp->retries > 2){
             myfile << tmp->ip << " " << tmp->timestamp_lasttry;
         }
     }
