@@ -430,10 +430,11 @@ bool handleLogin(command* cmd, int sd){
     int returnvalue = login(cmd->username, cmd->password);
     bool success = (returnvalue > 0) ? true : false;
     //if(returnvalue > -3 && returnvalue < 1)//fehlerhafter user oder pw
-    if(returnvalue < 1);
+    if(returnvalue < 1)
     {
         struct user_ldap* tmp;
         if((tmp = getWrongLoginStructFromIP(getIPfromSd(sd))) == NULL){
+            cout << "new wrong login struct" << endl;
             struct user_ldap* newuser = (struct user_ldap*) malloc(sizeof(struct user_ldap));
             strcpy(newuser->username, cmd->username);
             newuser->sd = sd;
@@ -445,6 +446,7 @@ bool handleLogin(command* cmd, int sd){
         }
         else
         {
+            cout << "existing wrong login struct" << endl;
             tmp->sd = sd;
             tmp->retries += 1;
             tmp->timestamp_lasttry = (int)time(0);
