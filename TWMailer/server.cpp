@@ -433,14 +433,15 @@ bool handleLogin(command* cmd, int sd){
     if(returnvalue < 1)
     {
         struct user_ldap* tmp;
-        if((tmp = getWrongLoginStructFromIP(getIPfromSd(sd))) == NULL){
+        char * ip = getIPfromSd(sd);
+        if((tmp = getWrongLoginStructFromIP(ip)) == NULL){
             cout << "new wrong login struct" << endl;
             struct user_ldap* newuser = (struct user_ldap*) malloc(sizeof(struct user_ldap));
             strcpy(newuser->username, cmd->username);
             newuser->sd = sd;
             newuser->retries = 0;
             newuser->timestamp_lasttry = (int)time(0);
-            strcpy(newuser->ip, getIPfromSd(sd));
+            strcpy(newuser->ip, ip);
         
             wrong_logins.push_back(newuser);
         }
@@ -455,6 +456,7 @@ bool handleLogin(command* cmd, int sd){
                 close(tmp->sd);
             }
         }
+        free(ip);
     }
     sendReplySuccess(success, sd);
     return success;
