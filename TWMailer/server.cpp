@@ -467,7 +467,7 @@ struct user_ldap* getWrongLoginStructFromIP(char* ip){
     for(std::vector<struct user_ldap*>::iterator it = wrong_logins.begin(); it != wrong_logins.end(); ++it) {
         struct user_ldap* tmp = *it;
         cout << "getStruct " << ip << "=?" << tmp->ip << endl;
-        if(strcmp(tmp->ip, ip)){
+        if(strcmp(tmp->ip, ip)==0){
             cout << "same" << endl;
             return tmp;
         }
