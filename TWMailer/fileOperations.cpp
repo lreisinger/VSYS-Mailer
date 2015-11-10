@@ -343,7 +343,7 @@ void getDirList(char* path, vector<char*> * entries)
     }
 }
 
-
+/*
 void saveBans(){
     char path[30] = "./bans";
 
@@ -361,7 +361,7 @@ void saveBans(){
     myfile << sender << endl << betreff << endl << nachricht << endl;
     myfile.close();
 
-}
+}*/
 
 bool fileExists(const char* file) {
     struct stat buf;
