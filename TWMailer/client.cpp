@@ -87,7 +87,7 @@ int main (int argc, char **argv) {
             case 2: listMail(create_socket); break;
             case 3: readMail(create_socket); break;
             case 4: delMail(create_socket); break;
-            case 5: login(create_socket); break;
+            case 5: if (login(create_socket)==-1) {printf("Banned, Quitting Client...\n"); strcpy(buffer, "quit\n");} break;
             case 6: logout(); break;
             case 7: downloadfile(create_socket); break;
             default: printf("Unknown Command\n");
@@ -417,6 +417,9 @@ int login(int conSocket) {
         return 1;
     }
     else {
+        if (strcasecmp(buffer, "BAN\n")==0) {
+            return -1;
+        }
         loggedIn=false;
         memset(&userLoggedIn, '\0', strlen(userLoggedIn));
         printf("Login failed!\n");
