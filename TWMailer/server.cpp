@@ -34,6 +34,7 @@
 #define MAXCLIENTS 100
 #define MAXRECEIVERS 100
 #define MAXFILESIZE 1024
+#define BANMINUTES 30
 
 using namespace std;
 
@@ -65,9 +66,10 @@ struct ThreadData
     }
 };
 
-std::vector<struct user_ldap*> loggedIn;
+std::vector<struct user_ldap*> wrong_logins;
 
 char* getIPfromSd(int sd);
+struct user_ldap* getWrongLoginStructFromIP(char* ip);
 
 void* handleClient(void* arg);
 
@@ -147,6 +149,8 @@ int main(int argc, const char * argv[]) {
     }
 
     socklen_t client_addrlen = sizeof(client_addr);
+    
+    loadBans();
 
     while (true) {
         cout << "Waiting for Connection..." << endl;
@@ -157,6 +161,19 @@ int main(int argc, const char * argv[]) {
         struct sockaddr_in* client_arg = (struct sockaddr_in*) malloc(sizeof(sockaddr_in));
         *client_arg = client_addr;
         
+        
+        struct user_ldap* tmp;
+        if((tmp = getWrongLoginStructFromIP(inet_ntoa(client_addr.sin_addr))) != NULL){
+            if(tmp->retries > 2){
+                int diff = (int)time(0)-tmp->timestamp_lasttry;
+                if((diff%60) < BANMINUTES){
+                    close(conn_fd);
+                    continue;
+                }
+                
+            }
+        }
+
         //arguments
         ThreadData* td = (ThreadData*) malloc(sizeof(ThreadData));
         td->fd = conn_fd;
@@ -409,25 +426,46 @@ bool handleSend(command* cmd, int sd){
 }
 
 bool handleLogin(command* cmd, int sd){
+    
     int returnvalue = login(cmd->username, cmd->password);
     bool success = (returnvalue > 0) ? true : false;
-    if(success)
+    if(returnvalue > -2 && returnvalue < 1)//fehlerhafter user oder pw
     {
-        struct user_ldap* newuser = (struct user_ldap*) malloc(sizeof(struct user_ldap));
-        strcpy(newuser->username, cmd->username);
-        newuser->sd = sd;
-        newuser->retries = 0;
-        newuser->timestamp_lasttry = (int)time(0);
-        strcpy(newuser->ip, getIPfromSd(sd));
+        struct user_ldap* tmp;
+        if((tmp = getWrongLoginStructFromIP(getIPfromSd(sd))) == NULL){
+            struct user_ldap* newuser = (struct user_ldap*) malloc(sizeof(struct user_ldap));
+            strcpy(newuser->username, cmd->username);
+            newuser->sd = sd;
+            newuser->retries = 0;
+            newuser->timestamp_lasttry = (int)time(0);
+            strcpy(newuser->ip, getIPfromSd(sd));
         
-        loggedIn.push_back(newuser);
-    }
-    else if(returnvalue > -2 && returnvalue < 1)//fehlerhafter user oder pw
-    {
-        //ipban nach 3x
+            wrong_logins.push_back(newuser);
+        }
+        else
+        {
+            tmp->sd = sd;
+            tmp->retries += 1;
+            tmp->timestamp_lasttry = (int)time(0);
+            
+            if(tmp->retries > 2){
+                close(tmp->sd);
+            }
+        }
     }
     sendReplySuccess(success, sd);
     return success;
+}
+
+struct user_ldap* getWrongLoginStructFromIP(char* ip){
+    
+    for(std::vector<struct user_ldap*>::iterator it = wrong_logins.begin(); it != wrong_logins.end(); ++it) {
+        struct user_ldap* tmp = *it;
+        if(strcmp(tmp->ip, ip)){
+            return tmp;
+        }
+    }
+    return NULL;
 }
 
 char* getIPfromSd(int sd){
@@ -601,6 +639,7 @@ char* recvFile(int fileBytes, int sd){
 
 void exit_server()
 {
+    saveBans();
     cout << "Server shut down" << endl;
     //close all sockets
     close(socket_fd);

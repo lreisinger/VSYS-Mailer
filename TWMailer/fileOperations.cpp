@@ -343,25 +343,67 @@ void getDirList(char* path, vector<char*> * entries)
     }
 }
 
-/*
-void saveBans(){
-    char path[30] = "./bans";
+
+bool saveBans(){
+    char path[7] = "./bans";
 
     
-    
-    char fileNamePath[30];
-    memset(fileNamePath, '\0', sizeof(char)*30);
-    getNextFileNamePath(path, fileNamePath);
-    
     ofstream myfile;
-    myfile.open (fileNamePath);
+    myfile.open (path);
     if (myfile.fail()) {
         return false;
     }
-    myfile << sender << endl << betreff << endl << nachricht << endl;
+    
+    for(std::vector<struct user_ldap*>::iterator it = wrong_logins.begin(); it != wrong_logins.end(); ++it) {
+        struct user_ldap* tmp = *it;
+        if(tmp->retries > 3){
+            myfile << tmp->ip << " " << tmp->timestamp_lasttry;
+        }
+    }
+    
     myfile.close();
+    return true;
+}
 
-}*/
+
+bool loadBans(){
+    char path[7] = "./bans";
+    
+    
+    char line[81];
+    memset(line, '\0', sizeof(char)*81);
+    
+    FILE *fp = fopen(path,"r");
+    if( fp == NULL )
+    {
+        perror("Error while opening Ban file.(No Bans yet?)\n");
+        return false;
+    }
+    
+    
+    while(fgets(line,80, fp)!=NULL){
+        
+        struct user_ldap* newban = (struct user_ldap*) calloc(1, sizeof(struct user_ldap));
+        
+        strcpy(newban->ip, strtok(line, " "));
+        newban->timestamp_lasttry = atoi(strtok(NULL, " "));
+        newban->retries = 3;
+        
+        wrong_logins.push_back(newban);
+    }
+    fclose(fp);
+    
+    return true;
+}
+
+
+int getFileSize(FILE* pFile){
+    int size = 0;
+    fseek (pFile , 0 , SEEK_END);
+    size = (int)ftell (pFile);
+    rewind (pFile);
+    return size;
+}
 
 bool fileExists(const char* file) {
     struct stat buf;

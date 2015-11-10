@@ -12,15 +12,6 @@
 #include <stdio.h>
 #include <vector>
 
-extern std::vector<struct user_ldap*> loggedIn;
-
-struct user_ldap {
-    int sd;
-    char username[9];
-    int retries;
-    char ip[16];
-    int timestamp_lasttry;
-} ;
 
 int login(char* user, char* pass);
 
