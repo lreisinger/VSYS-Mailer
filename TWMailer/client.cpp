@@ -89,7 +89,7 @@ int main (int argc, char **argv) {
             case 4: delMail(create_socket); break;
             case 5: login(create_socket); break;
             case 6: logout(); break;
-            case 7: downloadfile(create_socket);
+            case 7: downloadfile(create_socket); break;
             default: printf("Unknown Command\n");
         }
     }
@@ -474,6 +474,7 @@ int sendAttachment(int conSocket, char *filePath) {
 
 int downloadfile(int conSocket) {
     char fName[20], buffer[BUF];
+    printf ("Filename: ");
     fgets(fName, 19, stdin);
 
     strcpy(buffer, "DOWNLOAD\n");
