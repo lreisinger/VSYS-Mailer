@@ -244,6 +244,8 @@ int sendMail(int conSocket) {
         if (strcasecmp(buffer,"OK\n")==0) {
             sendAttachment(conSocket, file);
 
+            memset(&buffer, '\0', sizeof(buffer));
+
             recv(conSocket,buffer,BUF-1, 0);
         }
         else {
