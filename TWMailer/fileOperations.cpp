@@ -343,6 +343,26 @@ void getDirList(char* path, vector<char*> * entries)
     }
 }
 
+
+void saveBans(){
+    char path[30] = "./bans";
+
+    
+    
+    char fileNamePath[30];
+    memset(fileNamePath, '\0', sizeof(char)*30);
+    getNextFileNamePath(path, fileNamePath);
+    
+    ofstream myfile;
+    myfile.open (fileNamePath);
+    if (myfile.fail()) {
+        return false;
+    }
+    myfile << sender << endl << betreff << endl << nachricht << endl;
+    myfile.close();
+
+}
+
 bool fileExists(const char* file) {
     struct stat buf;
     return (stat(file, &buf) == 0);

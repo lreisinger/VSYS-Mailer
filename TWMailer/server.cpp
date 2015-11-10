@@ -114,8 +114,8 @@ int main(int argc, const char * argv[]) {
     
     //signal END (ctrl+c)
 
-    if( argc < 2 ){
-        printf("Usage: %s Port\n", argv[0]);
+    if( argc < 3 ){
+        printf("Usage: %s Port Mailspool\n", argv[0]);
         exit(EXIT_FAILURE);
     }
     
@@ -596,6 +596,7 @@ char* recvFile(int fileBytes, int sd){
     }
     return file;
 }
+
 
 
 void exit_server()
