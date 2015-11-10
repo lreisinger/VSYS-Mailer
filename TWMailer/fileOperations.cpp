@@ -81,7 +81,7 @@ bool saveAttachment(char* attach, int bytes, char* filename, char* user){
     {
         printf("saved attachment successfully\n");
         cout << bytes << " " << "attachmentraw: "<<attach << endl;
-        cout << "write to " << attachedFile << endl;
+        cout << "write to " << path << endl;
         fwrite(attach, sizeof(char), bytes, attachedFile);
         printf("finished writing\n");
     }
