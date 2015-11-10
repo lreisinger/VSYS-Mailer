@@ -90,7 +90,7 @@ bool saveAttachment(char* attach, int bytes, char* filename, char* user){
     return true;
 }
 
-bool getAttachmentData(char* user, char* filename, char* data_out, int lenght_out){
+bool getAttachmentData(char* user, char* filename, char* data_out, int* lenght_out){
     
     char path[50];
     memset(path, '\0', sizeof(char)*50);
@@ -106,7 +106,7 @@ bool getAttachmentData(char* user, char* filename, char* data_out, int lenght_ou
         perror(path);
         return false;
     }
-    lenght_out = fread(data_out,MAXFILESIZE, 1, fp);
+    *lenght_out = getFileSize(fp);
     
     fclose(fp);
     return true;
@@ -402,11 +402,14 @@ bool loadBans(){
 
 
 int getFileSize(FILE* pFile){
-    int size = 0;
-    fseek (pFile , 0 , SEEK_END);
-    size = (int)ftell (pFile);
-    rewind (pFile);
-    return size;
+        long pos=0;
+        long size=0;
+        pos=ftell(pFile);
+        rewind(pFile);
+        while (fgetc(pFile)!=EOF)
+            size++;
+        fseek (pFile,pos,SEEK_SET);
+        return (int)size;
 }
 
 bool fileExists(const char* file) {

@@ -28,7 +28,7 @@ extern std::vector<struct user_ldap*> wrong_logins;
 bool loadBans();
 bool saveBans();
 
-bool getAttachmentData(char* user, char* filename, char* data_out, int lenght_out);
+bool getAttachmentData(char* user, char* filename, char* data_out, int* lenght_out);
 bool saveAttachment(char* attach, int bytes, char* filename, char* user);
 
 bool saveMessage(char* empfaenger, char* sender, char* betreff, char* nachricht);
