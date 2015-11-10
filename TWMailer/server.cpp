@@ -461,6 +461,8 @@ bool handleLogin(command* cmd, int sd, bool* banned){
             
             if(tmp->retries > 2){
                 *banned = true;
+                char ban[6] = "BAN\n";
+                sendReplyText(ban, tmp->sd);
                 close(tmp->sd);
                 
                 return false;
