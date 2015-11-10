@@ -310,7 +310,6 @@ command parseReceived(char* msg, int sd){
                 bool success = saveAttachment(filebytes, filesize, filename, new_cmd.empfaenger);
                 
                 free(filebytes);
-                free(tmp2);
                 
                 if(success){
                     strcat(new_cmd.message, "\n\nAttached file: ");
