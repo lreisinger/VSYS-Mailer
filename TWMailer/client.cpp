@@ -543,7 +543,7 @@ bool saveAttachment(char* attach, int bytes, char* filename, char* user) {
     createDirectory("recieved");
 
     strcpy(path, "./recieved/");
-    strcpy(path, filename);
+    strcat(path, filename);
 
 
     FILE* attachedFile = fopen(path, "w");
