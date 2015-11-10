@@ -468,12 +468,17 @@ bool handleLogin(command* cmd, int sd, bool* banned){
             tmp->timestamp_lasttry = (int)time(0);
             
             if(tmp->retries > 2){
-                *banned = true;
-                char ban[6] = "BAN\n";
-                sendReplyText(ban, tmp->sd);
-                close(tmp->sd);
+                int diff = (int)time(0)-tmp->timestamp_lasttry;
+                if(diff < (30*60)){
+                    
+
+                    *banned = true;
+                    char ban[6] = "BAN\n";
+                    sendReplyText(ban, tmp->sd);
+                    close(tmp->sd);
                 
-                return false;
+                    return false;
+                }
             }
         }
         free(ip);
