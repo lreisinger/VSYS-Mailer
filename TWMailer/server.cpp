@@ -166,6 +166,8 @@ int main(int argc, const char * argv[]) {
         if((tmp = getWrongLoginStructFromIP(inet_ntoa(client_addr.sin_addr))) != NULL){
             if(tmp->retries > 2){
                 int diff = (int)time(0)-tmp->timestamp_lasttry;
+                
+                cout << "ban diff = " << diff << endl;
                 if((diff%60) < BANMINUTES){
                     
                     char ban[6] = "BAN\n";
