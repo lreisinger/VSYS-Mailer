@@ -70,6 +70,10 @@ int main (int argc, char **argv) {
         size=recv(create_socket,buffer,BUF-1, 0);
             if (size>0) {
                 buffer[size]= '\0';
+                if (strcasecmp(buffer, "BAN\n")==0) {
+                    printf("You are currently banned from this server!\n");
+                    return EXIT_FAILURE;
+                }
                 printf("%s",buffer);
             }
         }
