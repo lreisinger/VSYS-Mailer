@@ -16,6 +16,7 @@
 #include <fstream>
 #include <string.h>
 #include <algorithm>
+#include <cstring>
 
 #include <vector>
 
@@ -206,8 +207,10 @@ bool getMailMessage(char* username, int fileNr, char* msg_out)
         }
         else if (i > 0)
         {
-            strcat(msg_out, strtok (line,"\n"));// \n wegsplitten
-            strcat(msg_out, "\n");
+            if(strlen(line) > 0){
+                strcat(msg_out, strtok (line,"\n"));// \n wegsplitten
+                strcat(msg_out, "\n");
+            }
         }
         i++;
     }
