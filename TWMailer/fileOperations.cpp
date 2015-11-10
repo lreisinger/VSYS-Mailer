@@ -207,7 +207,7 @@ bool getMailMessage(char* username, int fileNr, char* msg_out)
         }
         else if (i > 0)
         {
-            if(strlen(line) > 0){
+            if(strcmp(line, "\n") != 0){
                 strcat(msg_out, strtok (line,"\n"));// \n wegsplitten
                 strcat(msg_out, "\n");
             }
