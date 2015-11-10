@@ -544,6 +544,9 @@ bool saveAttachment(char* attach, int bytes, char* filename, char* user) {
     createDirectory("recieved");
 
     strcpy(path, "./recieved/");
+    strcat(path, userLoggedIn);
+    strcat(path, "/");
+    
     strcat(path, filename);
 
 
