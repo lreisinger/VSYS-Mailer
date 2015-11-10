@@ -481,6 +481,7 @@ int downloadfile(int conSocket) {
 
     strcpy(buffer, "DOWNLOAD\n");
     strcat(buffer, userLoggedIn);
+    strcat(buffer, "\n");
     strcat(buffer, strtok(fName, "\n"));
 
     send(conSocket, buffer, strlen(buffer), 0);
