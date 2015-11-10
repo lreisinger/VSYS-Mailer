@@ -454,6 +454,7 @@ bool handleLogin(command* cmd, int sd){
             
             if(tmp->retries > 2){
                 close(tmp->sd);
+                return false;
             }
         }
         free(ip);
