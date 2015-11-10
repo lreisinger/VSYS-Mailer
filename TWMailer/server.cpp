@@ -568,10 +568,12 @@ bool handleDownload(command* cmd, int sd){
     
     if(success)
     {
+        cout << "file trysend :\n" << file <<endl;
         sendReplyText(file, sd);
     }
     else
     {
+        cout << "file trysend error:\n" <<endl;
         strcpy(reply, "ERR\n");
         sendReplyText(reply, sd);
     }
