@@ -544,12 +544,17 @@ bool saveAttachment(char* attach, int bytes, char* filename, char* user) {
 
     char path[50];
     memset(path, '\0', sizeof(char)*50);
-
+    
     createDirectory("recieved");
+    
 
     strcpy(path, "./recieved/");
     strcat(path, userLoggedIn);
+    
+    createDirectory(path);
+    
     strcat(path, "/");
+    
     
     strcat(path, filename);
 
