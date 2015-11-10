@@ -429,7 +429,8 @@ bool handleLogin(command* cmd, int sd){
     
     int returnvalue = login(cmd->username, cmd->password);
     bool success = (returnvalue > 0) ? true : false;
-    if(returnvalue > -2 && returnvalue < 1)//fehlerhafter user oder pw
+    //if(returnvalue > -3 && returnvalue < 1)//fehlerhafter user oder pw
+    if(returnvalue < 1);
     {
         struct user_ldap* tmp;
         if((tmp = getWrongLoginStructFromIP(getIPfromSd(sd))) == NULL){
