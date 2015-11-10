@@ -225,7 +225,9 @@ void* handleClient(void* arg)
         {
             cout << "RAW: " << endl << buffer << endl;
             command recv_cmd = parseReceived(buffer, fd);
-            handleCommand(&recv_cmd, fd, &loggedIn);
+            if(handleCommand(&recv_cmd, fd, &loggedIn) == false){
+                return NULL;
+            }
         }
         
     }
@@ -441,7 +443,7 @@ bool handleLogin(command* cmd, int sd){
             struct user_ldap* newuser = (struct user_ldap*) malloc(sizeof(struct user_ldap));
             strcpy(newuser->username, cmd->username);
             newuser->sd = sd;
-            newuser->retries = 0;
+            newuser->retries = 1;
             newuser->timestamp_lasttry = (int)time(0);
             strcpy(newuser->ip, ip);
         
