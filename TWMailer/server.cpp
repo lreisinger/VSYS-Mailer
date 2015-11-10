@@ -225,7 +225,9 @@ void* handleClient(void* arg)
         {
             cout << "RAW: " << endl << buffer << endl;
             command recv_cmd = parseReceived(buffer, fd);
-            if(handleCommand(&recv_cmd, fd, &loggedIn) == false){
+            handleCommand(&recv_cmd, fd, &loggedIn);
+            
+            if(read(fd, buffer, 255)==0){
                 return NULL;
             }
         }
