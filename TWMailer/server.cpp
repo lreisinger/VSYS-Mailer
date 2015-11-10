@@ -554,7 +554,7 @@ bool handleDownload(command* cmd, int sd){
     memset(reply, '\0', sizeof(char)*BUF);
     memset(buffer, '\0', sizeof(char)*BUF);
     memset(file, '\0', sizeof(char)*MAXFILESIZE);
-    bool success = getAttachmentData(cmd->username, filename, file, length);
+    bool success = getAttachmentData(cmd->username, filename, file, &length);
     
     strcpy(reply, filename);
     strcat(reply, " ");
