@@ -68,7 +68,7 @@ bool saveAttachment(char* attach, int bytes, char* filename, char* user){
     strcat(path, "Attachments/");
     createDirectory(path);
     
-    strcpy(path, filename);
+    strcat(path, filename);
     
     
     FILE* attachedFile = fopen(path, "w");
