@@ -78,7 +78,7 @@ bool saveAttachment(char* attach, int bytes, char* filename, char* user){
     }
     else
     {
-        printf("opened attachment successfully\n");
+        printf("saved attachment successfully\n");
         
         fwrite(attach, sizeof(char), bytes, attachedFile);
         printf("finished writing\n");
