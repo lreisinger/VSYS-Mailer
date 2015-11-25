@@ -12,6 +12,13 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <vector>
+#include <pthread.h>
+
+#define BANMINUTES 30
+
+
+pthread_mutex_t lockvar=PTHREAD_MUTEX_INITIALIZER;
+
 
 extern const char* mailspool;
 
@@ -27,6 +34,8 @@ extern std::vector<struct user_ldap*> wrong_logins;
 
 bool loadBans();
 bool saveBans();
+
+bool timediffBiggerThan(long diffSeconds, int minimumMintes);
 
 bool getAttachmentData(char* user, char* filename, char* data_out, int* lenght_out);
 bool saveAttachment(char* attach, int bytes, char* filename, char* user);

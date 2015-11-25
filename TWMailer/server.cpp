@@ -34,7 +34,6 @@
 #define MAXCLIENTS 100
 #define MAXRECEIVERS 100
 #define MAXFILESIZE 1024
-#define BANMINUTES 30
 
 using namespace std;
 
@@ -165,21 +164,23 @@ int main(int argc, const char * argv[]) {
         struct user_ldap* tmp;
         if((tmp = getWrongLoginStructFromIP(inet_ntoa(client_addr.sin_addr))) != NULL){
             if(tmp->retries > 2){
-                int diff = (int)time(0)-tmp->timestamp_lasttry;
+                long diff = time(0)-tmp->timestamp_lasttry;
                 
                 
                 
-                //cout << "ban diff = " << diff << endl;
-                if(diff < (30*60)){
+                cout << "ban diff = " << diff << endl;
+                if(timediffBiggerThan(diff, BANMINUTES)){
                     
                     char ban[6] = "BAN\n";
                     sendReplyText(ban, conn_fd);
 
                     close(conn_fd);
+                    free(tmp);
                     continue;
                 }
                 
             }
+            free(tmp);
         }
 
         //arguments
@@ -468,8 +469,8 @@ bool handleLogin(command* cmd, int sd, bool* banned){
             tmp->timestamp_lasttry = (int)time(0);
             
             if(tmp->retries > 2){
-                int diff = (int)time(0)-tmp->timestamp_lasttry;
-                if(diff < (30*60)){
+                int diff = (int)time(0)-tmp->timestamp_lasttry;//diff in seconds
+                if(timediffBiggerThan(diff, BANMINUTES)){
                     
 
                     *banned = true;
@@ -480,6 +481,7 @@ bool handleLogin(command* cmd, int sd, bool* banned){
                     return false;
                 }
             }
+            free(tmp);
         }
         free(ip);
     }
@@ -487,16 +489,21 @@ bool handleLogin(command* cmd, int sd, bool* banned){
     return success;
 }
 
+
 struct user_ldap* getWrongLoginStructFromIP(char* ip){
+    struct user_ldap* tmp = (struct user_ldap*) malloc(sizeof(struct user_ldap));
     
     for(std::vector<struct user_ldap*>::iterator it = wrong_logins.begin(); it != wrong_logins.end(); ++it) {
-        struct user_ldap* tmp = *it;
+        
         cout << "getStruct " << ip << "=?" << tmp->ip << endl;
         if(strcmp(tmp->ip, ip)==0){
+            
+            *tmp = (struct user_ldap)**it;
             cout << "same" << endl;
             return tmp;
         }
     }
+    free(tmp);
     return NULL;
 }
 

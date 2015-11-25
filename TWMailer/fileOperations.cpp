@@ -17,10 +17,13 @@
 #include <string.h>
 #include <algorithm>
 #include <cstring>
+#include <pthread.h>
 
 #include <vector>
 
 #define MAXFILESIZE 1024
+
+#define BANFILE "./bans"
 
 using namespace std;
 
@@ -41,6 +44,9 @@ bool saveMessage(char* empfaenger, char* sender, char* betreff, char* nachricht)
         memset(fileNamePath, '\0', sizeof(char)*30);
         getNextFileNamePath(path, fileNamePath);
         
+        
+        pthread_mutex_lock(&lockvar);
+        
         ofstream myfile;
         myfile.open (fileNamePath);
         if (myfile.fail()) {
@@ -49,6 +55,7 @@ bool saveMessage(char* empfaenger, char* sender, char* betreff, char* nachricht)
         myfile << sender << endl << betreff << endl << nachricht << endl;
         myfile.close();
         
+        pthread_mutex_unlock(&lockvar);
         
         singleEmpfaenger = strtok (NULL, ",");
     }
@@ -351,11 +358,9 @@ void getDirList(char* path, vector<char*> * entries)
 
 
 bool saveBans(){
-    char path[7] = "./bans";
-
     
     ofstream myfile;
-    myfile.open (path);
+    myfile.open (BANFILE);
     if (myfile.fail()) {
         return false;
     }
@@ -373,13 +378,12 @@ bool saveBans(){
 
 
 bool loadBans(){
-    char path[7] = "./bans";
     
     
     char line[81];
     memset(line, '\0', sizeof(char)*81);
     
-    FILE *fp = fopen(path,"r");
+    FILE *fp = fopen(BANFILE,"r");
     if( fp == NULL )
     {
         perror("Error while opening Ban file.(No Bans yet?)\n");
@@ -395,13 +399,30 @@ bool loadBans(){
         newban->timestamp_lasttry = atoi(strtok(NULL, " "));
         newban->retries = 3;
         
-        wrong_logins.push_back(newban);
+        long diff = time(0) - newban->timestamp_lasttry;
+        if(timediffBiggerThan(diff, BANMINUTES))
+        {
+            free(newban);
+        }
+        else
+        {
+            wrong_logins.push_back(newban);
+        }
     }
     fclose(fp);
     
     return true;
 }
 
+
+bool timediffBiggerThan(long diffSeconds, int minimumMintes)
+{
+    if(diffSeconds < (minimumMintes*60)){
+        
+        return false;
+    }
+    return true;
+}
 
 int getFileSize(FILE* pFile){
         long pos=0;
