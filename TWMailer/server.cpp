@@ -400,7 +400,7 @@ bool handleCommand(command* cmd, int sd, bool* loggedIn, bool* banned){
                 return false; //no login
             }
         }
-        else//not logged in
+        else//logged in
         {
             if(strcasecmp(cmd->cmd, "SEND") == 0){
                 return handleSend(cmd, sd);
@@ -494,7 +494,7 @@ struct user_ldap* getWrongLoginStructFromIP(char* ip){
     struct user_ldap* tmp = (struct user_ldap*) malloc(sizeof(struct user_ldap));
     
     for(std::vector<struct user_ldap*>::iterator it = wrong_logins.begin(); it != wrong_logins.end(); ++it) {
-        
+        tmp = (struct user_ldap*) *it;
         cout << "getStruct " << ip << "=?" << tmp->ip << endl;
         if(strcmp(tmp->ip, ip)==0){
             
