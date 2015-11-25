@@ -27,6 +27,9 @@
 
 using namespace std;
 
+
+pthread_mutex_t lockvar = PTHREAD_MUTEX_INITIALIZER;
+
 bool saveMessage(char* empfaenger, char* sender, char* betreff, char* nachricht){
     
     char* singleEmpfaenger = strtok (empfaenger,",");

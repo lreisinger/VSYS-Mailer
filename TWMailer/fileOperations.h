@@ -17,9 +17,6 @@
 #define BANMINUTES 30
 
 
-pthread_mutex_t lockvar=PTHREAD_MUTEX_INITIALIZER;
-
-
 extern const char* mailspool;
 
 struct user_ldap {
